@@ -73,7 +73,9 @@ export default defineConfig(({ mode }) => ({
     stripFileRedirect(),
     ...(mode === 'file' ? [relativePaths(), viteSingleFile()] : []),
   ],
-  ...(mode === 'file' && { base: './', build: { outDir: FILE_OUT_DIR } }),
+  // GitHub Pages serves from /prostaff-website/ subpath; file mode needs relative paths
+  base: mode === 'file' ? './' : '/prostaff-website/',
+  ...(mode === 'file' && { build: { outDir: FILE_OUT_DIR } }),
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.js'],
