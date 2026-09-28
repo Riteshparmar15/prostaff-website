@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run",
-    "format": "prettier --write \"src/**/*.{js,jsx,css}\" \"scripts/**/*.mjs\""
+    "format": "prettier --write \"src/**/*.{js,jsx,css}\" \"scripts/**/*.mjs\"",
+    "deploy": "npm run build && npx gh-pages -d dist"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
