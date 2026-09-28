@@ -112,9 +112,12 @@ describe('footer', () => {
     const f = within(footer);
     expect(f.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute(
       'href',
-      '/privacy.html',
+      expect.stringContaining('privacy.html'),
     );
-    expect(f.getByRole('link', { name: 'Terms of Use' })).toHaveAttribute('href', '/terms.html');
+    expect(f.getByRole('link', { name: 'Terms of Use' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('terms.html'),
+    );
     expect(f.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute(
       'href',
       company.social.linkedin,

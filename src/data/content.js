@@ -36,6 +36,9 @@ export const brand = {
   monogram: 'PS',
 };
 
+const BASE = (import.meta.env?.BASE_URL || '/').replace(/\/+$/, '') + '/';
+export const asset = (path) => `${BASE}${path.replace(/^\/+/, '')}`;
+
 /*
  * Company facts. Every `null` field is hidden on the site; fill it in and it
  * appears automatically (contact details, footer, structured data).
@@ -87,10 +90,10 @@ export const hero = {
   scrollCue: { label: 'Discover', href: '#about' },
   // Ambient background only; the sectors themselves live in the Industries section.
   slides: [
-    { base: '/images/hero/tailored' },
-    { base: '/images/hero/interview' },
-    { base: '/images/hero/partnership' },
-    { base: '/images/hero/executive' },
+    { base: asset('images/hero/tailored') },
+    { base: asset('images/hero/interview') },
+    { base: asset('images/hero/partnership') },
+    { base: asset('images/hero/executive') },
   ],
 };
 
@@ -156,7 +159,7 @@ export const about = {
     },
   ],
   image: {
-    src: '/images/about.webp',
+    src: asset('images/about.webp'),
     alt: 'Two professionals shaking hands across a meeting table',
   },
   quote: {
@@ -244,8 +247,8 @@ export const industries = {
       name: 'Fashion',
       roles: ['Boutique Directors', 'Personal Stylists', 'Visual Merchandisers'],
       image: {
-        webp: '/images/industries/fashion.webp',
-        webpMobile: '/images/industries/fashion-mobile.webp',
+        webp: asset('images/industries/fashion.webp'),
+        webpMobile: asset('images/industries/fashion-mobile.webp'),
         alt: 'Minimal rail of cream and camel knitwear in a designer atelier',
       },
     },
@@ -254,8 +257,8 @@ export const industries = {
       name: 'Jewellery',
       roles: ['Client Advisors', 'Boutique Managers', 'Clienteling Specialists'],
       image: {
-        webp: '/images/industries/jewellery.webp',
-        webpMobile: '/images/industries/jewellery-mobile.webp',
+        webp: asset('images/industries/jewellery.webp'),
+        webpMobile: asset('images/industries/jewellery-mobile.webp'),
         alt: 'Gold chain bracelet resting on an open fashion magazine',
       },
     },
@@ -264,8 +267,8 @@ export const industries = {
       name: 'Hospitality',
       roles: ['Front Office Managers', 'Concierge Teams', 'Fine-Dining Service Staff'],
       image: {
-        webp: '/images/industries/hospitality.webp',
-        webpMobile: '/images/industries/hospitality-mobile.webp',
+        webp: asset('images/industries/hospitality.webp'),
+        webpMobile: asset('images/industries/hospitality-mobile.webp'),
         alt: 'Luxury resort and pool lit at dusk',
       },
     },
@@ -274,8 +277,8 @@ export const industries = {
       name: 'Premium Retail',
       roles: ['Area & Cluster Managers', 'Beauty Advisors', 'Store Associates'],
       image: {
-        webp: '/images/industries/retail.webp',
-        webpMobile: '/images/industries/retail-mobile.webp',
+        webp: asset('images/industries/retail.webp'),
+        webpMobile: asset('images/industries/retail-mobile.webp'),
         alt: 'Softly lit premium boutique with curated shelving',
       },
     },
@@ -284,8 +287,8 @@ export const industries = {
       name: 'Automotive',
       roles: ['Sales Consultants', 'Client Relationship Managers', 'Showroom Hosts'],
       image: {
-        webp: '/images/industries/automotive.webp',
-        webpMobile: '/images/industries/automotive-mobile.webp',
+        webp: asset('images/industries/automotive.webp'),
+        webpMobile: asset('images/industries/automotive-mobile.webp'),
         alt: 'Grey luxury coupe photographed at dusk',
       },
     },
@@ -343,7 +346,7 @@ export const contact = {
     consent: {
       before: 'By submitting, you agree to our ',
       link: 'Privacy Policy',
-      href: '/privacy.html',
+      href: asset('privacy.html'),
       after: '.',
     },
     errors: {
@@ -422,8 +425,8 @@ export const footer = {
     .filter(Boolean)
     .join(' · '),
   legal: [
-    { label: 'Privacy Policy', href: '/privacy.html' },
-    { label: 'Terms of Use', href: '/terms.html' },
+    { label: 'Privacy Policy', href: asset('privacy.html') },
+    { label: 'Terms of Use', href: asset('terms.html') },
   ],
   social: [
     company.social.linkedin && {

@@ -66,19 +66,33 @@ const stripFileRedirect = () => ({
     html.replace(/\s*<!-- file-open-redirect:start -->[\s\S]*?<!-- file-open-redirect:end -->/, ''),
 });
 
-export default defineConfig(({ mode }) => ({
-  plugins: [
-    react(),
-    mockContactApi(),
-    stripFileRedirect(),
-    ...(mode === 'file' ? [relativePaths(), viteSingleFile()] : []),
-  ],
-  // GitHub Pages serves from /prostaff-website/ subpath; file mode needs relative paths
-  base: mode === 'file' ? './' : '/prostaff-website/',
-  ...(mode === 'file' && { build: { outDir: FILE_OUT_DIR } }),
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.js'],
-    css: false,
-  },
-}));
+export default defineConfig(({ mode }) => {
+  const base = mode === 'file' ? './' : '/prostaff-website/';
+  return {
+    plugins: [
+      react(),
+      mockContactApi(),
+      stripFileRedirect(),
+      {
+        name: 'fix-html-asset-paths',
+        transformIndexHtml: {
+          order: 'post',
+          handler: (html) => {
+            const b = base.endsWith('/') ? base : `${base}/`;
+            return html
+              .replace(/(imagesrcset="|, )\/images\//g, `$1${b}images/`)
+              .replace(/(href|src)="\/(images|favicon|apple-touch|privacy\.html|terms\.html)/g, `$1="${b}$2`);
+          },
+        },
+      },
+      ...(mode === 'file' ? [relativePaths(), viteSingleFile()] : []),
+    ],
+    base,
+    ...(mode === 'file' && { build: { outDir: FILE_OUT_DIR } }),
+    test: {
+      environment: 'jsdom',
+      setupFiles: ['./src/test/setup.js'],
+      css: false,
+    },
+  };
+});
