@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: theme('spacing.header');
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Lenis drives the scroll itself; native smoothing would fight it */
+  html.lenis {
+    scroll-behavior: auto;
+  }
+
+  /* Sections receive focus after anchor navigation; only real controls get a ring */
+  [tabindex='-1']:focus {
+    outline: none;
+  }
+
+  body {
+    @apply bg-ivory font-sans text-body font-light text-stone antialiased;
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif text-ink;
+  }
+
+  ::selection {
+    @apply bg-gold-light text-onyx;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.gold.DEFAULT');
+    outline-offset: 3px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Components                                                         */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .container-luxe {
+    @apply mx-auto w-full max-w-container px-5 sm:px-8;
+  }
+
+  .section-pad {
+    @apply py-section-sm lg:py-section;
+  }
+
+  .eyebrow {
+    @apply font-sans text-eyebrow font-medium uppercase tracking-eyebrow;
+  }
+
+  /* Light surface: faint gold glow in the top corners */
+  .surface-glow {
+    @apply relative isolate;
+  }
+  .surface-glow::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 -z-10;
+    background:
+      radial-gradient(40rem 26rem at 0% 0%, rgba(184, 149, 90, 0.08), transparent 70%),
+      radial-gradient(40rem 26rem at 100% 0%, rgba(184, 149, 90, 0.07), transparent 70%);
+  }
+
+  /* Dark surface: faint film-grain overlay */
+  .surface-grain {
+    @apply relative isolate;
+  }
+  .surface-grain::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 -z-10;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Button sheen sweep */
+  .btn-sheen {
+    @apply relative overflow-hidden;
+  }
+  .btn-sheen::after {
+    content: '';
+    @apply pointer-events-none absolute inset-y-0 -left-full w-1/2;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.7s theme('transitionTimingFunction.luxe');
+  }
+  .btn-sheen:hover::after,
+  .btn-sheen:focus-visible::after {
+    left: 130%;
+  }
+
+  /* Logo wordmark: a slow gold light passes across the letters */
+  .wordmark-light,
+  .wordmark-dark {
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: wordmark-sheen 7s linear infinite;
+  }
+  .wordmark-light {
+    background-image: linear-gradient(
+      110deg,
+      theme('colors.ivory') 42%,
+      theme('colors.gold.light') 50%,
+      theme('colors.ivory') 58%
+    );
+  }
+  .wordmark-dark {
+    background-image: linear-gradient(
+      110deg,
+      theme('colors.ink') 42%,
+      theme('colors.gold.DEFAULT') 50%,
+      theme('colors.ink') 58%
+    );
+  }
+  @keyframes wordmark-sheen {
+    from {
+      background-position: 150% 0;
+    }
+    to {
+      background-position: -150% 0;
+    }
+  }
+
+  /* Form fields */
+  .field {
+    @apply w-full rounded-luxe border border-sand bg-white/70 px-4 py-3 text-body-sm font-normal text-ink
+      placeholder:text-stone/60 transition-[border-color,box-shadow] duration-300 ease-luxe
+      focus:border-gold focus:shadow-gold-glow focus:outline-none;
+  }
+  .field[aria-invalid='true'] {
+    @apply border-red-700/60;
+  }
+}
