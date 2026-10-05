@@ -78,22 +78,26 @@ export default function Footer() {
           </Reveal>
         </div>
 
-        <Reveal
-          delay={stagger(4)}
-          className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-ivory/10 pt-8 text-center text-xs tracking-wide md:flex-row md:text-left"
-        >
-          <p className="text-mist">{footer.copyright}</p>
-          <ul className="flex gap-5">
-            {footer.legal.map((link) => (
-              <li key={link.label}>
-                <a href={link.href} className="text-mist transition-colors hover:text-gold-light">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <p className="text-gold-light/80">{footer.registration}</p>
-        </Reveal>
+        <div className="mt-14 border-t border-gold/25 pt-8">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-center text-sm md:justify-start md:text-left">
+            <ul className="flex items-center gap-5 font-medium">
+              {footer.legal.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    className="text-ivory/90 transition-colors duration-200 hover:text-gold-light"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <span className="hidden text-gold/40 md:inline" aria-hidden="true">·</span>
+            <p className="text-mist">
+              {footer.copyright}
+            </p>
+          </div>
+        </div>
       </div>
     </footer>
   );

@@ -44,11 +44,11 @@ export const asset = (path) => `${BASE}${path.replace(/^\/+/, '')}`;
  * appears automatically (contact details, footer, structured data).
  */
 export const company = {
-  email: 'info@prostaffsolution.com',
+  email: 'adarsh.dubeyenterprises@gmail.com',
   foundedYear: null, // e.g. 2022
-  address: 'Mumbai, Maharashtra, India',
-  phone: '+91 22 4890 2140',
-  whatsapp: '912248902140', // digits only with country code
+  address: 'Prostaff, Parshwa Complex, Ellora Park, Subhanpura, Vadodara, Gujarat - 390023',
+  phone: '+91 90235 58486',
+  whatsapp: '919023558486', // digits only with country code
   hours: 'Monday – Saturday, 9am – 6pm IST',
   cin: null, // Corporate Identification Number
   gst: null,
@@ -342,7 +342,7 @@ export const contact = {
     submit: 'Send Message',
     sending: 'Sending…',
     success: "Thank you. We'll be in touch within 24 hours.",
-    failure: 'Something went wrong. Please try again or email info@prostaffsolution.com.',
+    failure: 'Something went wrong. Please try again or email adarsh.dubeyenterprises@gmail.com.',
     consent: {
       before: 'By submitting, you agree to our ',
       link: 'Privacy Policy',

@@ -81,7 +81,8 @@ export default defineConfig(({ mode }) => {
             const b = base.endsWith('/') ? base : `${base}/`;
             return html
               .replace(/(imagesrcset="|, )\/images\//g, `$1${b}images/`)
-              .replace(/(href|src)="\/(images|favicon|apple-touch|privacy\.html|terms\.html)/g, `$1="${b}$2`);
+              .replace(/(href|src)="\/(images|favicon|apple-touch|privacy\.html|terms\.html|legal\.css|logo-mark)/g, `$1="${b}$2`)
+              .replace(/href="\/"/g, `href="${b}"`);
           },
         },
       },

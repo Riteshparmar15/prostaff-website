@@ -124,7 +124,7 @@ describe('footer', () => {
     );
     expect(f.getByRole('link', { name: company.phone })).toHaveAttribute(
       'href',
-      'tel:+912248902140',
+      'tel:+919023558486',
     );
   });
 });
