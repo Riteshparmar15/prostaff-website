@@ -53,7 +53,7 @@ export const company = {
   cin: null, // Corporate Identification Number
   gst: null,
   social: {
-    linkedin: 'https://www.linkedin.com/company/prostafff-solution',
+    linkedin: 'https://www.linkedin.com/company/prostafff-solution-private-limited/',
     instagram: null, // full URL
   },
 };
