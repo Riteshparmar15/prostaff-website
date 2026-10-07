@@ -111,6 +111,14 @@ export default {
           '80%': { transform: 'scale(1.35)', opacity: '0.7' },
           '90%': { transform: 'scale(0.9)', opacity: '1' },
         },
+        marquee: {
+          '0%': { transform: 'translate3d(0, 0, 0)' },
+          '100%': { transform: 'translate3d(-100%, 0, 0)' },
+        },
+        'marquee-reverse': {
+          '0%': { transform: 'translate3d(-100%, 0, 0)' },
+          '100%': { transform: 'translate3d(0, 0, 0)' },
+        },
       },
       animation: {
         kenburns: 'kenburns 20s ease-in-out infinite alternate',
@@ -119,6 +127,8 @@ export default {
         shimmer: 'shimmer 6s linear infinite',
         twinkle: 'twinkle 4s ease-in-out infinite',
         'spin-slow': 'spin 28s linear infinite',
+        marquee: 'marquee 35s linear infinite',
+        'marquee-reverse': 'marquee-reverse 35s linear infinite',
       },
       transitionTimingFunction: {
         luxe: 'cubic-bezier(0.22, 1, 0.36, 1)',

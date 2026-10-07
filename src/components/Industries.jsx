@@ -24,13 +24,11 @@ function Panel({ item, index, active, onActivate, reduced }) {
         onMouseEnter={onActivate}
         onFocus={onActivate}
         onClick={onActivate}
-        className={`group relative block h-full w-full overflow-hidden rounded-luxe border text-left transition-[border-color,box-shadow] duration-700 ease-luxe lg:aspect-auto ${
-          index === 4 ? 'aspect-[16/9]' : 'aspect-[3/4]'
-        } ${index < 3 ? 'md:aspect-[3/4]' : 'md:aspect-[16/10]'} ${
-          active
+        className={`group relative block h-full w-full overflow-hidden rounded-luxe border text-left transition-[border-color,box-shadow] duration-700 ease-luxe lg:aspect-auto ${index === 4 ? 'aspect-[16/9]' : 'aspect-[3/4]'
+          } ${index < 3 ? 'md:aspect-[3/4]' : 'md:aspect-[16/10]'} ${active
             ? 'border-gold/60 shadow-[0_30px_80px_-30px_rgba(184,149,90,0.45)]'
             : 'border-ivory/10 hover:border-gold/30'
-        }`}
+          }`}
       >
         <picture>
           <source srcSet={image.webpMobile.replace(/\.webp$/, '.avif')} type="image/avif" />
@@ -41,20 +39,20 @@ function Panel({ item, index, active, onActivate, reduced }) {
             decoding="async"
             width="900"
             height="1200"
-            className={`absolute inset-0 h-full w-full object-cover transition-[transform,filter] duration-[1.6s] ease-luxe ${
-              active ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[70%] group-hover:scale-105'
-            }`}
+            className={`absolute inset-0 h-full w-full object-cover transition-[transform,filter] duration-[1.6s] ease-luxe ${active ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[70%] group-hover:scale-105'
+              }`}
           />
         </picture>
 
-        {/* Legibility gradient + dim for closed panels */}
+        {/* Legibility gradient: transparent at top for clear image visibility, dark at bottom for text */}
         <span
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-onyx via-onyx/40 to-onyx/10"
+          className="absolute inset-0 bg-gradient-to-t from-onyx via-onyx/25 to-transparent"
         />
         <span
           aria-hidden="true"
-          className={`absolute inset-0 bg-onyx transition-opacity duration-700 ${active ? 'opacity-0' : 'opacity-[0.35] lg:opacity-50'}`}
+          className={`absolute inset-0 bg-gradient-to-t from-onyx/80 to-transparent transition-opacity duration-700 ${active ? 'opacity-0' : 'opacity-40 lg:opacity-50'
+            }`}
         />
 
         {/* Index + gold rule */}
@@ -69,9 +67,8 @@ function Panel({ item, index, active, onActivate, reduced }) {
         {/* Collapsed desktop label: vertical name */}
         <span
           aria-hidden="true"
-          className={`absolute bottom-6 left-1/2 hidden -translate-x-1/2 whitespace-nowrap font-serif text-2xl italic text-ivory/90 transition-opacity duration-500 [writing-mode:vertical-rl] lg:block ${
-            active ? 'opacity-0' : 'rotate-180'
-          }`}
+          className={`absolute bottom-6 left-1/2 hidden -translate-x-1/2 whitespace-nowrap font-serif text-2xl italic text-ivory/90 transition-opacity duration-500 [writing-mode:vertical-rl] lg:block ${active ? 'opacity-0' : 'rotate-180'
+            }`}
         >
           {name}
         </span>

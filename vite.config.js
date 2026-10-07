@@ -66,9 +66,13 @@ const stripFileRedirect = () => ({
     html.replace(/\s*<!-- file-open-redirect:start -->[\s\S]*?<!-- file-open-redirect:end -->/, ''),
 });
 
-export default defineConfig(({ mode }) => {
-  const base = mode === 'file' ? './' : '/prostaff-website/';
+export default defineConfig(({ command, mode }) => {
+  const base = command === 'serve' ? '/' : (mode === 'file' ? './' : '/prostaff-website/');
   return {
+    server: {
+      host: true,
+      port: 5173,
+    },
     plugins: [
       react(),
       mockContactApi(),

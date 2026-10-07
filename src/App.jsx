@@ -3,6 +3,7 @@ import { MotionConfig } from 'framer-motion';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Stats from './components/Stats';
+import BrandShowcase from './components/BrandShowcase';
 import About from './components/About';
 import Services from './components/Services';
 import Industries from './components/Industries';
@@ -32,6 +33,7 @@ export default function App() {
       <main id="main">
         <Hero />
         <Stats />
+        <BrandShowcase />
         <About />
         <Services />
         <Industries />

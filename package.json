@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Prostaff Solution Pvt. Ltd. - premium staffing for the luxury lifestyle sector",
   "scripts": {
-    "dev": "vite",
-    "start": "vite --open",
+    "dev": "vite --host",
+    "start": "vite --open --host",
     "build": "vite build && vite build --ssr src/entry-server.jsx --outDir dist-ssr && node scripts/prerender.mjs",
     "build:client": "vite build",
     "build:file": "vite build --mode file",

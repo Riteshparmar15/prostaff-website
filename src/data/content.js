@@ -64,6 +64,7 @@ export const company = {
 export const nav = {
   links: [
     { id: 'home', label: 'Home' },
+    { id: 'brands', label: 'Brands' },
     { id: 'about', label: 'About' },
     { id: 'services', label: 'Services' },
     { id: 'industries', label: 'Industries' },
@@ -106,6 +107,118 @@ export const stats = [
   { value: 50, suffix: '+', label: 'Luxury Brands Served' },
   { value: 100, suffix: '%', label: 'Client Retention Rate' },
 ];
+
+/* ------------------------------------------------------------------ */
+/*  Brands We Serve — Pan-India Luxury Footprint                       */
+/* ------------------------------------------------------------------ */
+export const brandPartners = {
+  eyebrow: 'Pan-India & International Presence',
+  title: [
+    { text: 'Trusted by ' },
+    { text: 'Iconic Brands', em: true },
+    { br: true },
+    { text: 'Across India & Dubai (UAE)' },
+  ],
+  badge: 'Serving Prestigious Brands Pan-India & Dubai (UAE)',
+  coverageCities: [
+    'Dubai (UAE)',
+    'Mumbai',
+    'Delhi NCR',
+    'Bengaluru',
+    'Hyderabad',
+    'Kolkata',
+    'Chennai',
+    'Ahmedabad',
+    'Pune',
+    'Vadodara',
+  ],
+  items: [
+    {
+      id: 'rivoli',
+      name: 'Rivoli Group',
+      logo: asset('images/brands/rivoli-group.png'),
+      imgClass: 'max-h-12 max-w-[120px]',
+      region: 'Dubai · UAE',
+    },
+    {
+      id: 'dubai-gold',
+      name: 'Dubai Gold & Jewellery Group',
+      logo: asset('images/brands/dubai-gold-jewellery.png'),
+      imgClass: 'max-h-11 max-w-[150px]',
+      region: 'Dubai · UAE',
+    },
+    {
+      id: 'rolex',
+      name: 'Rolex',
+      logo: asset('images/brands/rolex.png'),
+      imgClass: 'max-h-14 max-w-[100px]',
+      region: 'Luxury Horology',
+    },
+    {
+      id: 'versace',
+      name: 'Versace',
+      logo: asset('images/brands/versace.png'),
+      imgClass: 'max-h-9 max-w-[150px]',
+      region: 'Haute Couture',
+    },
+    {
+      id: 'sabyasachi',
+      name: 'Sabyasachi Calcutta',
+      logo: asset('images/brands/sabyasachi.png'),
+      imgClass: 'max-h-9 max-w-[160px]',
+      region: 'Luxury Couture',
+    },
+    {
+      id: 'valentino',
+      name: 'Valentino',
+      logo: asset('images/brands/valentino.png'),
+      imgClass: 'max-h-10 max-w-[140px]',
+      region: 'Luxury Fashion',
+    },
+    {
+      id: 'ethos',
+      name: 'Ethos Watches',
+      logo: asset('images/brands/ethos.png'),
+      imgClass: 'max-h-9 max-w-[140px]',
+      region: 'Luxury Watches',
+    },
+    {
+      id: 'apple',
+      name: 'Apple',
+      logo: asset('images/brands/apple.png'),
+      imgClass: 'max-h-10 max-w-[55px]',
+      region: 'Premium Tech',
+    },
+    {
+      id: 'balenciaga',
+      name: 'Balenciaga',
+      logo: asset('images/brands/balenciaga.png'),
+      imgClass: 'max-h-7 max-w-[160px]',
+      region: 'High Fashion',
+    },
+    {
+      id: 'guess',
+      name: 'Guess',
+      logo: asset('images/brands/guess.png'),
+      imgClass: 'max-h-12 max-w-[120px]',
+      region: 'Luxury Retail',
+    },
+    {
+      id: 'pernias',
+      name: "Pernia's Pop-Up Shop",
+      logo: asset('images/brands/pernias-popup-shop.png'),
+      imgClass: 'max-h-9 max-w-[160px]',
+      region: 'Designer Pret',
+    },
+    {
+      id: 'helios',
+      name: 'Helios The Watch Store',
+      logo: asset('images/brands/helios-watch-store.png'),
+      imgClass: 'max-h-8 max-w-[160px]',
+      region: 'Premium Watches',
+    },
+  ],
+};
 
 /* ------------------------------------------------------------------ */
 /*  About                                                              */
@@ -398,6 +511,7 @@ export const footer = {
       nav: true,
       links: [
         { label: 'Home', href: '#home' },
+        { label: 'Brands We Serve', href: '#brands' },
         { label: 'About Us', href: '#about' },
         { label: 'Services', href: '#services' },
         { label: 'Industries', href: '#industries' },
