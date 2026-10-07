@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "format": "prettier --write \"src/**/*.{js,jsx,css}\" \"scripts/**/*.mjs\"",
-    "deploy": "npm run build && npx gh-pages -d dist"
+    "deploy": "npm run build && npx gh-pages -d dist --dotfiles --nojekyll"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
