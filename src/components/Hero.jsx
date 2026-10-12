@@ -25,46 +25,21 @@ const POINTER_SPRING = { stiffness: 70, damping: 20, mass: 0.6 };
 const slides = hero.slides;
 const pad = (n) => String(n).padStart(2, '0');
 
-// Art-directed crops with non-overlapping media; widths must match scripts/hero-images.mjs
-const HERO_VARIANTS = [
-  {
-    name: 'mobile',
-    media: '(max-width: 767px) and (orientation: portrait)',
-    widths: [640, 1080],
-  },
-  {
-    name: 'tablet',
-    media: '(min-width: 768px) and (max-width: 1199px) and (orientation: portrait)',
-    widths: [1024, 1600],
-  },
-  {
-    name: 'desktop',
-    media: '(min-width: 1200px), (orientation: landscape)',
-    widths: [1280, 1920, 2560],
-  },
-];
-const DESKTOP = HERO_VARIANTS[2];
 // The image layer overhangs the viewport by 2.5rem each side for parallax and pointer depth
-const HERO_SIZES = 'calc(100vw + 5rem)';
+const HERO_SIZES = '(max-width: 767px) 100vw, calc(100vw + 5rem)';
 
-const srcSet = (slide, { name, widths }, ext) =>
-  widths.map((w) => `${slide.base}-${name}-${w}.${ext} ${w}w`).join(', ');
-
-// Media-scoped, typed preload hints: only the matching crop is fetched, and only if AVIF decodes
+// Online images: preload the next slide via <link rel="preload">
 function preload(slide) {
   if (typeof document === 'undefined') return;
-  HERO_VARIANTS.forEach((variant) => {
-    const imagesrcset = srcSet(slide, variant, 'avif');
-    if (document.head.querySelector(`link[imagesrcset="${imagesrcset}"]`)) return;
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.type = 'image/avif';
-    link.media = variant.media;
-    link.setAttribute('imagesrcset', imagesrcset);
-    link.setAttribute('imagesizes', HERO_SIZES);
-    document.head.appendChild(link);
-  });
+  const existing = document.head.querySelector(`link[href="${slide.url}"]`);
+  if (existing) return;
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = slide.url;
+  if (slide.srcSet) link.setAttribute('imagesrcset', slide.srcSet);
+  link.setAttribute('imagesizes', HERO_SIZES);
+  document.head.appendChild(link);
 }
 
 const hasFinePointer = () =>
@@ -200,8 +175,8 @@ export default function Hero() {
           className="absolute -inset-10 [perspective:1400px]"
         >
           <AnimatePresence initial={false}>
-            <motion.picture
-              key={current.base}
+            <motion.div
+              key={current.url}
               className="absolute inset-0 block origin-center will-change-transform"
               initial={{
                 zIndex: 1,
@@ -213,32 +188,34 @@ export default function Hero() {
               exit={{ zIndex: 0, rotateY: 3, scale: 0.97, opacity: 0.4 }}
               transition={{ duration: WIPE_S, ease: EASE_LUXE }}
             >
-              {HERO_VARIANTS.flatMap((variant) =>
-                ['avif', 'webp'].map((ext) => (
-                  <source
-                    key={`${variant.name}-${ext}`}
-                    media={variant.media}
-                    srcSet={srcSet(current, variant, ext)}
-                    sizes={HERO_SIZES}
-                    type={`image/${ext}`}
-                  />
-                )),
-              )}
               <motion.img
-                src={`${current.base}-desktop-1920.webp`}
-                srcSet={srcSet(current, DESKTOP, 'webp')}
+                src={current.url}
+                srcSet={current.srcSet}
                 sizes={HERO_SIZES}
                 alt=""
                 width="1920"
                 height="1080"
                 fetchpriority={active === 0 ? 'high' : undefined}
                 decoding="async"
+                onError={(e) => {
+                  const fallbacks = [
+                    '/images/hero/tailored-desktop-1920.webp',
+                    '/images/hero/interview-desktop-1920.webp',
+                    '/images/hero/partnership-desktop-1920.webp',
+                    '/images/hero/executive-desktop-1920.webp',
+                  ];
+                  const fallback = fallbacks[active];
+                  if (fallback && !e.currentTarget.src.endsWith(fallback)) {
+                    e.currentTarget.removeAttribute('srcset');
+                    e.currentTarget.src = fallback;
+                  }
+                }}
                 className="h-full w-full object-cover saturate-[0.6]"
                 initial={reduced ? false : { scale: 1.1 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: SLIDE_MS / 1000 + 2, ease: 'linear' }}
               />
-            </motion.picture>
+            </motion.div>
           </AnimatePresence>
         </motion.div>
       </motion.div>

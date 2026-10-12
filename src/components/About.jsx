@@ -74,7 +74,7 @@ export default function About() {
                   height="690"
                   loading="lazy"
                   decoding="async"
-                  className="aspect-[16/10] w-full object-cover grayscale-[35%] transition-[filter,transform] duration-1000 ease-luxe hover:scale-[1.03] hover:grayscale-0"
+                  className="aspect-[16/10] w-full object-cover grayscale-[25%] transition-[filter,transform] duration-1000 ease-luxe hover:scale-[1.03] hover:grayscale-0"
                 />
               </picture>
               <span

@@ -1,8 +1,49 @@
+import { useState } from 'react';
 import { MapPin, ShieldCheck } from 'lucide-react';
 import { brandPartners } from '../data/content';
 import SectionHeading from './ui/SectionHeading';
 import Reveal, { stagger } from './ui/Reveal';
 import useReducedMotion from '../hooks/useReducedMotion';
+
+function BrandCard({ brand }) {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div className="group/card relative flex h-24 w-52 shrink-0 flex-col items-center justify-center rounded-luxe border border-sand/75 bg-white/95 p-5 shadow-card transition-all duration-300 ease-luxe hover:-translate-y-1 hover:border-gold hover:shadow-card-hover md:h-28 md:w-60">
+      {/* Hairline gold accent top border on hover */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-0.5 scale-x-0 bg-gold-gradient transition-transform duration-300 ease-luxe group-hover/card:scale-x-100"
+      />
+
+      <div className="flex h-12 w-full items-center justify-center px-2">
+        {!hasError ? (
+          <img
+            src={brand.logo}
+            alt={`${brand.name} logo`}
+            decoding="async"
+            onError={() => setHasError(true)}
+            className={`${brand.imgClass} object-contain transition-transform duration-300 ease-luxe group-hover/card:scale-105`}
+          />
+        ) : (
+          <span className="font-serif text-sm font-semibold tracking-wide text-onyx">
+            {brand.name}
+          </span>
+        )}
+      </div>
+
+      {brand.region && (
+        <span
+          className={`mt-2 font-sans text-[0.5625rem] font-semibold uppercase tracking-widest ${
+            brand.region.includes('Dubai') ? 'text-gold-deep font-bold' : 'text-stone/75'
+          }`}
+        >
+          {brand.region}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export default function BrandShowcase() {
   const reduced = useReducedMotion();
@@ -71,34 +112,7 @@ export default function BrandShowcase() {
             } group-hover:[animation-play-state:paused]`}
           >
             {brands.map((brand) => (
-              <div
-                key={`t1-${brand.id}`}
-                className="group/card relative flex h-24 w-52 shrink-0 flex-col items-center justify-center rounded-luxe border border-sand/75 bg-white/90 p-5 shadow-card transition-all duration-300 ease-luxe hover:-translate-y-1 hover:border-gold hover:shadow-card-hover md:h-28 md:w-60"
-              >
-                {/* Hairline gold accent top border on hover */}
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-x-0 top-0 h-0.5 scale-x-0 bg-gold-gradient transition-transform duration-300 ease-luxe group-hover/card:scale-x-100"
-                />
-
-                <div className="flex h-12 w-full items-center justify-center">
-                  <img
-                    src={brand.logo}
-                    alt={`${brand.name} logo`}
-                    loading="lazy"
-                    decoding="async"
-                    className={`${brand.imgClass} object-contain transition-transform duration-300 ease-luxe group-hover/card:scale-105`}
-                  />
-                </div>
-
-                {brand.region && (
-                  <span className={`mt-2 font-sans text-[0.5625rem] font-semibold uppercase tracking-widest ${
-                    brand.region.includes('Dubai') ? 'text-gold-deep font-bold' : 'text-stone/75'
-                  }`}>
-                    {brand.region}
-                  </span>
-                )}
-              </div>
+              <BrandCard key={`t1-${brand.id}`} brand={brand} />
             ))}
           </div>
 
@@ -110,33 +124,7 @@ export default function BrandShowcase() {
             } group-hover:[animation-play-state:paused]`}
           >
             {brands.map((brand) => (
-              <div
-                key={`t2-${brand.id}`}
-                className="group/card relative flex h-24 w-52 shrink-0 flex-col items-center justify-center rounded-luxe border border-sand/75 bg-white/90 p-5 shadow-card transition-all duration-300 ease-luxe hover:-translate-y-1 hover:border-gold hover:shadow-card-hover md:h-28 md:w-60"
-              >
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-x-0 top-0 h-0.5 scale-x-0 bg-gold-gradient transition-transform duration-300 ease-luxe group-hover/card:scale-x-100"
-                />
-
-                <div className="flex h-12 w-full items-center justify-center">
-                  <img
-                    src={brand.logo}
-                    alt={`${brand.name} logo`}
-                    loading="lazy"
-                    decoding="async"
-                    className={`${brand.imgClass} object-contain transition-transform duration-300 ease-luxe group-hover/card:scale-105`}
-                  />
-                </div>
-
-                {brand.region && (
-                  <span className={`mt-2 font-sans text-[0.5625rem] font-semibold uppercase tracking-widest ${
-                    brand.region.includes('Dubai') ? 'text-gold-deep font-bold' : 'text-stone/75'
-                  }`}>
-                    {brand.region}
-                  </span>
-                )}
-              </div>
+              <BrandCard key={`t2-${brand.id}`} brand={brand} />
             ))}
           </div>
         </div>

@@ -40,6 +40,13 @@ const BASE = (import.meta.env?.BASE_URL || '/').replace(/\/+$/, '') + '/';
 export const asset = (path) => `${BASE}${path.replace(/^\/+/, '')}`;
 
 /*
+ * Online image helper — builds responsive Unsplash URLs with dynamic sizing.
+ * Using Unsplash's Imgix-powered CDN for on-the-fly format/quality/size.
+ */
+const unsplash = (photoId, params = '') =>
+  `https://images.unsplash.com/${photoId}?auto=format&fit=crop&q=80${params ? '&' + params : ''}`;
+
+/*
  * Company facts. Every `null` field is hidden on the site; fill it in and it
  * appears automatically (contact details, footer, structured data).
  */
@@ -74,7 +81,7 @@ export const nav = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Hero                                                               */
+/*  Hero — Online images via Unsplash CDN                              */
 /* ------------------------------------------------------------------ */
 export const hero = {
   eyebrow: 'Premium Staffing Solutions',
@@ -89,12 +96,56 @@ export const hero = {
   primaryCta: { label: 'Explore Services', href: '#services' },
   secondaryCta: { label: 'Partner With Us', href: '#contact' },
   scrollCue: { label: 'Discover', href: '#about' },
-  // Ambient background only; the sectors themselves live in the Industries section.
+  // Ambient background only — online images with responsive widths
   slides: [
-    { base: asset('images/hero/tailored') },
-    { base: asset('images/hero/interview') },
-    { base: asset('images/hero/partnership') },
-    { base: asset('images/hero/executive') },
+    {
+      // Tailored luxury suit, cufflinks & wristwatch
+      url: asset('images/hero/tailored-desktop-1920.webp'),
+      mobile: asset('images/hero/tailored-mobile-1080.webp'),
+      srcSet: [
+        `${asset('images/hero/tailored-mobile-640.webp')} 640w`,
+        `${asset('images/hero/tailored-mobile-1080.webp')} 1080w`,
+        `${asset('images/hero/tailored-desktop-1280.webp')} 1280w`,
+        `${asset('images/hero/tailored-desktop-1920.webp')} 1920w`,
+        `${asset('images/hero/tailored-desktop-2560.webp')} 2560w`,
+      ].join(', '),
+    },
+    {
+      // Professional interview / business meeting
+      url: unsplash('photo-1521737711867-e3b97375f902', 'w=1920&h=1080'),
+      mobile: unsplash('photo-1521737711867-e3b97375f902', 'w=640&h=960'),
+      srcSet: [
+        `${unsplash('photo-1521737711867-e3b97375f902', 'w=640&h=960')} 640w`,
+        `${unsplash('photo-1521737711867-e3b97375f902', 'w=1080&h=1620')} 1080w`,
+        `${unsplash('photo-1521737711867-e3b97375f902', 'w=1280&h=720')} 1280w`,
+        `${unsplash('photo-1521737711867-e3b97375f902', 'w=1920&h=1080')} 1920w`,
+        `${unsplash('photo-1521737711867-e3b97375f902', 'w=2560&h=1440')} 2560w`,
+      ].join(', '),
+    },
+    {
+      // Business partnership / handshake
+      url: unsplash('photo-1600880292203-757bb62b4baf', 'w=1920&h=1080'),
+      mobile: unsplash('photo-1600880292203-757bb62b4baf', 'w=640&h=960'),
+      srcSet: [
+        `${unsplash('photo-1600880292203-757bb62b4baf', 'w=640&h=960')} 640w`,
+        `${unsplash('photo-1600880292203-757bb62b4baf', 'w=1080&h=1620')} 1080w`,
+        `${unsplash('photo-1600880292203-757bb62b4baf', 'w=1280&h=720')} 1280w`,
+        `${unsplash('photo-1600880292203-757bb62b4baf', 'w=1920&h=1080')} 1920w`,
+        `${unsplash('photo-1600880292203-757bb62b4baf', 'w=2560&h=1440')} 2560w`,
+      ].join(', '),
+    },
+    {
+      // Executive boardroom / leadership
+      url: unsplash('photo-1573164713988-8665fc963095', 'w=1920&h=1080'),
+      mobile: unsplash('photo-1573164713988-8665fc963095', 'w=640&h=960'),
+      srcSet: [
+        `${unsplash('photo-1573164713988-8665fc963095', 'w=640&h=960')} 640w`,
+        `${unsplash('photo-1573164713988-8665fc963095', 'w=1080&h=1620')} 1080w`,
+        `${unsplash('photo-1573164713988-8665fc963095', 'w=1280&h=720')} 1280w`,
+        `${unsplash('photo-1573164713988-8665fc963095', 'w=1920&h=1080')} 1920w`,
+        `${unsplash('photo-1573164713988-8665fc963095', 'w=2560&h=1440')} 2560w`,
+      ].join(', '),
+    },
   ],
 };
 
@@ -109,7 +160,7 @@ export const stats = [
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Brands We Serve — Pan-India Luxury Footprint                       */
+/*  Brands We Serve — Online logos via Clearbit / SVG CDN              */
 /* ------------------------------------------------------------------ */
 export const brandPartners = {
   eyebrow: 'Pan-India & International Presence',
@@ -221,7 +272,7 @@ export const brandPartners = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  About                                                              */
+/*  About — Online image via Unsplash                                  */
 /* ------------------------------------------------------------------ */
 export const about = {
   eyebrow: 'Our Story',
@@ -276,7 +327,7 @@ export const about = {
     alt: 'Two professionals shaking hands across a meeting table',
   },
   quote: {
-    text: 'We don’t simply place professionals — we architect the foundations of exceptional organisations.',
+    text: "We don't simply place professionals — we architect the foundations of exceptional organisations.",
     cite: 'Prostaff Solution',
   },
 };
@@ -349,7 +400,7 @@ export const services = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Industries                                                         */
+/*  Industries — Online images via Unsplash                            */
 /* ------------------------------------------------------------------ */
 export const industries = {
   title: 'Industries We Serve',
@@ -360,8 +411,8 @@ export const industries = {
       name: 'Fashion',
       roles: ['Boutique Directors', 'Personal Stylists', 'Visual Merchandisers'],
       image: {
-        webp: asset('images/industries/fashion.webp'),
-        webpMobile: asset('images/industries/fashion-mobile.webp'),
+        desktop: asset('images/industries/fashion.webp'),
+        mobile: asset('images/industries/fashion-mobile.webp'),
         alt: 'Minimal rail of cream and camel knitwear in a designer atelier',
       },
     },
@@ -370,8 +421,8 @@ export const industries = {
       name: 'Jewellery',
       roles: ['Client Advisors', 'Boutique Managers', 'Clienteling Specialists'],
       image: {
-        webp: asset('images/industries/jewellery.webp'),
-        webpMobile: asset('images/industries/jewellery-mobile.webp'),
+        desktop: asset('images/industries/jewellery.webp'),
+        mobile: asset('images/industries/jewellery-mobile.webp'),
         alt: 'Gold chain bracelet resting on an open fashion magazine',
       },
     },
@@ -380,8 +431,8 @@ export const industries = {
       name: 'Hospitality',
       roles: ['Front Office Managers', 'Concierge Teams', 'Fine-Dining Service Staff'],
       image: {
-        webp: asset('images/industries/hospitality.webp'),
-        webpMobile: asset('images/industries/hospitality-mobile.webp'),
+        desktop: asset('images/industries/hospitality.webp'),
+        mobile: asset('images/industries/hospitality-mobile.webp'),
         alt: 'Luxury resort and pool lit at dusk',
       },
     },
@@ -390,8 +441,8 @@ export const industries = {
       name: 'Premium Retail',
       roles: ['Area & Cluster Managers', 'Beauty Advisors', 'Store Associates'],
       image: {
-        webp: asset('images/industries/retail.webp'),
-        webpMobile: asset('images/industries/retail-mobile.webp'),
+        desktop: asset('images/industries/retail.webp'),
+        mobile: asset('images/industries/retail-mobile.webp'),
         alt: 'Softly lit premium boutique with curated shelving',
       },
     },
@@ -400,8 +451,8 @@ export const industries = {
       name: 'Automotive',
       roles: ['Sales Consultants', 'Client Relationship Managers', 'Showroom Hosts'],
       image: {
-        webp: asset('images/industries/automotive.webp'),
-        webpMobile: asset('images/industries/automotive-mobile.webp'),
+        desktop: asset('images/industries/automotive.webp'),
+        mobile: asset('images/industries/automotive-mobile.webp'),
         alt: 'Grey luxury coupe photographed at dusk',
       },
     },
@@ -420,7 +471,7 @@ export const contact = {
     { text: ' Together' },
   ],
   tagline:
-    '“Whether you’re a brand seeking top talent or a professional ready for your next chapter — we’re here.”',
+    '"Whether you\'re a brand seeking top talent or a professional ready for your next chapter — we\'re here."',
   details: [
     { icon: MapPin, label: 'Office', value: company.address ?? 'India' },
     { icon: Mail, label: 'Email', value: company.email, href: `mailto:${company.email}` },
@@ -479,22 +530,25 @@ export const testimonials = {
   title: [{ text: 'In Their ' }, { text: 'Words', em: true }],
   items: [
     {
+      name: 'Deepika Sharma',
+      role: 'Head of HR',
+      org: 'Kapoor Watches',
       quote:
-        'I applied once, got a clear reply, and landed interviews that actually matched my store experience.',
-      role: 'Store Associate',
-      org: 'Placed · Lifestyle retail · India',
+        'We have had a great experience working with Adarsh. He has been very responsive and quick to understand our requirements, especially for retail front-end sales positions. The quality of candidates shared has been consistently good, and he has been able to support us with relevant profiles within a short span of time. We truly appreciate his commitment and responsiveness.',
     },
     {
+      name: 'Gargi Singh',
+      role: 'Senior Executive',
+      org: 'Ethos Watches',
       quote:
-        'They explained the UAE process upfront — no false promises, just a serious shortlist for the right floor.',
-      role: 'Beauty Advisor',
-      org: 'Placed · Premium retail · UAE',
+        'Had a great experience working with Adarsh. He is professional, understands requirements clearly, and is always quick with his responses. Really appreciate his support and commitment. Would definitely recommend Adarsh and his team.',
     },
     {
+      name: 'Purvasha Raj',
+      role: 'HR Executive',
+      org: 'Guess India',
       quote:
-        'As a store manager looking to step up, the brief and interview loop felt professional and respectful of my time.',
-      role: 'Store Manager',
-      org: 'Placed · Apparel · West India',
+        'I had a great experience working with Adarsh and the team while supporting our HR staffing requirements. They were extremely prompt, responsive, and professional throughout the process. Their understanding of the requirements, quick turnaround, and consistent support made the hiring process much smoother. Would definitely recommend Adarsh and the team for their commitment and reliable support!',
     },
   ],
 };

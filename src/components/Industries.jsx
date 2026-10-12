@@ -31,16 +31,17 @@ function Panel({ item, index, active, onActivate, reduced }) {
           }`}
       >
         <picture>
-          <source srcSet={image.webpMobile.replace(/\.webp$/, '.avif')} type="image/avif" />
+          <source srcSet={image.mobile.replace(/\.webp$/, '.avif')} type="image/avif" />
           <img
-            src={image.webpMobile}
-            alt=""
+            src={image.mobile}
+            alt={image.alt || name}
             loading="lazy"
             decoding="async"
             width="900"
             height="1200"
-            className={`absolute inset-0 h-full w-full object-cover transition-[transform,filter] duration-[1.6s] ease-luxe ${active ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[70%] group-hover:scale-105'
-              }`}
+            className={`absolute inset-0 h-full w-full object-cover transition-[transform,filter] duration-[1.6s] ease-luxe ${
+              active ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[20%] group-hover:scale-105 group-hover:grayscale-0'
+            }`}
           />
         </picture>
 

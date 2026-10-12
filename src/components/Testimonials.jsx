@@ -29,8 +29,15 @@ export default function Testimonials() {
                   <p>“{t.quote}”</p>
                 </blockquote>
                 <figcaption className="mt-6 border-t border-sand pt-5">
-                  <span className="block text-sm font-medium text-ink">{t.role}</span>
-                  <span className="mt-1 block text-micro uppercase tracking-btn text-gold-deep">
+                  {t.name && (
+                    <span className="block font-serif text-base font-semibold text-onyx">
+                      {t.name}
+                    </span>
+                  )}
+                  <span className={`block text-sm font-medium ${t.name ? 'text-stone' : 'text-ink'}`}>
+                    {t.role}
+                  </span>
+                  <span className="mt-1 block text-micro font-semibold uppercase tracking-btn text-gold-deep">
                     {t.org}
                   </span>
                 </figcaption>
