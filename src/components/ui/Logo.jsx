@@ -151,16 +151,16 @@ export default function Logo({ tone = 'light', delay = 0, className = '' }) {
     <a
       href="#home"
       aria-label={`${brand.name} — back to top`}
-      className={`group inline-flex items-center gap-3.5 ${className}`}
+      className={`group inline-flex items-center gap-2.5 sm:gap-3.5 ${className}`}
     >
       <LogoMark
-        className="h-11 w-11 transition-transform duration-700 ease-luxe group-hover:scale-106"
+        className="h-9 w-9 sm:h-11 sm:w-11 transition-transform duration-700 ease-luxe group-hover:scale-106"
         delay={delay}
       />
 
       <motion.span
         aria-hidden="true"
-        className="h-9 w-px origin-top bg-gold/40"
+        className="h-7 sm:h-9 w-px origin-top bg-gold/40"
         initial={reduced ? false : { scaleY: 0 }}
         animate={{ scaleY: 1 }}
         transition={{ duration: 0.8, ease: EASE_LUXE, delay: delay + 0.4 }}
@@ -168,7 +168,7 @@ export default function Logo({ tone = 'light', delay = 0, className = '' }) {
 
       <span className="flex flex-col leading-none">
         <motion.span
-          className={`font-serif text-xl font-medium uppercase ${light ? 'wordmark-light' : 'wordmark-dark'}`}
+          className={`font-serif text-lg sm:text-xl font-medium uppercase ${light ? 'wordmark-light' : 'wordmark-dark'}`}
           initial={reduced ? false : { opacity: 0, letterSpacing: '0.45em' }}
           animate={{ opacity: 1, letterSpacing: '0.2em' }}
           transition={{ duration: 1.2, ease: EASE_LUXE, delay: delay + 0.5 }}
@@ -176,7 +176,7 @@ export default function Logo({ tone = 'light', delay = 0, className = '' }) {
           {brand.wordmark}
         </motion.span>
         <motion.span
-          className="mt-2 font-sans text-micro font-medium uppercase tracking-[0.42em] text-gold-light"
+          className="mt-1.5 sm:mt-2 font-sans text-[0.625rem] sm:text-micro font-medium uppercase tracking-[0.32em] sm:tracking-[0.42em] text-gold-light"
           initial={reduced ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: delay + 1 }}

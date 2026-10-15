@@ -73,7 +73,7 @@ export default function BrandShowcase() {
 
           {/* Pan-India Footprint Badge */}
           <Reveal delay={stagger(2)} className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white/95 px-4 py-1.5 font-sans text-micro font-medium uppercase tracking-wider text-gold-deep shadow-sm backdrop-blur-sm">
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white/95 px-3 py-1.5 font-sans text-[0.6875rem] font-medium uppercase tracking-wider text-gold-deep shadow-sm backdrop-blur-sm sm:px-4 sm:text-micro">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
@@ -96,11 +96,11 @@ export default function BrandShowcase() {
         {/* Soft edge-fade masks for seamless infinite dissolve */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-24 bg-gradient-to-r from-ivory via-ivory/80 to-transparent md:w-48"
+          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-8 bg-gradient-to-r from-ivory via-ivory/80 to-transparent sm:w-24 md:w-48"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-24 bg-gradient-to-l from-ivory via-ivory/80 to-transparent md:w-48"
+          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-8 bg-gradient-to-l from-ivory via-ivory/80 to-transparent sm:w-24 md:w-48"
         />
 
         {/* Dual-track continuous seamless loop */}

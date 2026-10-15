@@ -279,7 +279,7 @@ export default function Hero() {
 
           <h1
             id="hero-title"
-            className="mt-5 text-h1 font-normal text-ivory max-sm:text-[2.3rem] sm:mt-6"
+            className="mt-5 text-h1 font-normal text-ivory max-xs:text-[1.85rem] max-sm:text-[2.2rem] sm:mt-6"
           >
             {hero.headingLines.map((line, i) => (
               <span key={i} className="block pb-1 [perspective:900px]">
@@ -306,10 +306,19 @@ export default function Hero() {
             delay={stagger(lineCount + 3, LOAD_DELAY, LINE_STEP * 2)}
             className="mt-6 flex flex-col gap-3 xs:flex-row xs:flex-wrap sm:mt-10 sm:gap-4"
           >
-            <Button href={hero.primaryCta.href} variant="gold" arrow className="max-sm:py-3">
+            <Button
+              href={hero.primaryCta.href}
+              variant="gold"
+              arrow
+              className="w-full justify-center text-center xs:w-auto max-sm:py-3"
+            >
               {hero.primaryCta.label}
             </Button>
-            <Button href={hero.secondaryCta.href} variant="outline-light" className="max-sm:py-3">
+            <Button
+              href={hero.secondaryCta.href}
+              variant="outline-light"
+              className="w-full justify-center text-center xs:w-auto max-sm:py-3"
+            >
               {hero.secondaryCta.label}
             </Button>
           </Reveal>
@@ -320,7 +329,7 @@ export default function Hero() {
       <Reveal
         onMount
         delay={stagger(lineCount + 4, LOAD_DELAY, LINE_STEP * 2)}
-        className="container-luxe flex items-center justify-between gap-6 pb-6 sm:pb-8 md:pb-10"
+        className="container-luxe flex flex-wrap items-center justify-between gap-4 pb-6 sm:pb-8 md:pb-10"
       >
         <a
           href={hero.scrollCue.href}

@@ -25,13 +25,13 @@ export default function SectionHeading({
       <Reveal
         as="p"
         delay={stagger(0)}
-        className={`eyebrow flex items-center gap-4 ${centered ? 'justify-center' : ''} ${
+        className={`eyebrow flex items-center gap-2.5 sm:gap-4 ${centered ? 'justify-center' : ''} ${
           dark ? 'text-gold-light' : 'text-gold-deep'
         }`}
       >
         <motion.span
           aria-hidden="true"
-          className="block h-px w-10 origin-left bg-gold"
+          className="block h-px w-6 sm:w-10 shrink-0 origin-left bg-gold"
           initial={reduced ? false : { scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
@@ -44,7 +44,7 @@ export default function SectionHeading({
         as="h2"
         id={id}
         delay={stagger(1)}
-        className={`mt-5 text-h2 font-normal ${dark ? 'text-ivory' : 'text-ink'}`}
+        className={`mt-3.5 sm:mt-5 text-h2 font-normal ${dark ? 'text-ivory' : 'text-ink'}`}
       >
         {typeof title === 'string' ? title : <RichText segments={title} tone={tone} />}
       </Reveal>

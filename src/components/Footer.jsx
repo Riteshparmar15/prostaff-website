@@ -13,8 +13,8 @@ export default function Footer() {
         className="absolute inset-x-0 top-0 h-px animate-shimmer bg-[length:200%_100%] bg-gold-shimmer"
       />
 
-      <div className="container-luxe pb-10 pt-16 md:pt-20">
-        <div className="grid gap-12 md:grid-cols-[2fr_1fr_1fr] md:gap-16 lg:grid-cols-[2fr_1fr_1fr_auto]">
+      <div className="container-luxe pb-8 pt-12 sm:pb-10 sm:pt-16 md:pt-20">
+        <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr] md:gap-16 lg:grid-cols-[2fr_1fr_1fr_auto]">
           <Reveal delay={stagger(0)}>
             <Logo />
             <p className="mt-6 max-w-xs text-body-sm text-mist">{footer.tagline}</p>
@@ -78,8 +78,8 @@ export default function Footer() {
           </Reveal>
         </div>
 
-        <div className="mt-14 border-t border-gold/25 pt-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-center text-sm md:justify-start md:text-left">
+        <div className="mt-10 sm:mt-14 border-t border-gold/25 pt-6 sm:pt-8">
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-x-5 gap-y-3 text-center text-xs sm:text-sm md:justify-start md:text-left">
             <ul className="flex items-center gap-5 font-medium">
               {footer.legal.map((link) => (
                 <li key={link.label}>
@@ -92,7 +92,7 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-            <span className="hidden text-gold/40 md:inline" aria-hidden="true">·</span>
+            <span className="hidden text-gold/40 sm:inline" aria-hidden="true">·</span>
             <p className="text-mist">
               {footer.copyright}
             </p>

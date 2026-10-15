@@ -75,7 +75,7 @@ function Panel({ item, index, active, onActivate, reduced }) {
         </span>
 
         {/* Open label: icon ring + name (always shown on small screens) */}
-        <span className={`absolute inset-x-0 bottom-0 p-5 md:p-7 ${active ? '' : 'lg:hidden'}`}>
+        <span className={`absolute inset-x-0 bottom-0 p-3.5 sm:p-5 md:p-7 ${active ? '' : 'lg:hidden'}`}>
           <AnimatePresence mode="wait">
             <motion.span
               key={active ? 'open' : 'closed'}
@@ -84,13 +84,13 @@ function Panel({ item, index, active, onActivate, reduced }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE_LUXE, delay: active ? 0.25 : 0 }}
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-gold/60 bg-onyx/40 text-gold-light md:h-14 md:w-14">
-                <Icon aria-hidden="true" strokeWidth={1.25} className="h-5 w-5 md:h-6 md:w-6" />
+              <span className="flex h-9 w-9 sm:h-12 sm:w-12 md:h-14 md:w-14 items-center justify-center rounded-full border border-gold/60 bg-onyx/40 text-gold-light">
+                <Icon aria-hidden="true" strokeWidth={1.25} className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
               </span>
-              <span className="mt-4 block font-serif text-xl leading-tight text-ivory md:text-3xl lg:text-4xl">
+              <span className="mt-2.5 sm:mt-4 block font-serif text-base sm:text-2xl md:text-3xl lg:text-4xl leading-tight text-ivory">
                 {name}
               </span>
-              <span aria-hidden="true" className="mt-4 block h-px w-14 bg-gold-gradient" />
+              <span aria-hidden="true" className="mt-2.5 sm:mt-4 block h-px w-8 sm:w-14 bg-gold-gradient" />
               {roles?.length > 0 && (
                 <span
                   className={`mt-4 flex-wrap gap-x-4 gap-y-1.5 ${active ? 'hidden md:flex' : 'hidden'}`}

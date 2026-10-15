@@ -139,10 +139,10 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.45, ease: EASE_LUXE }}
-            className="surface-grain fixed inset-0 z-40 flex flex-col bg-onyx pt-header lg:hidden"
+            className="surface-grain fixed inset-0 z-40 flex flex-col overflow-y-auto bg-onyx pt-header lg:hidden"
           >
-            <nav aria-label="Mobile" className="container-luxe flex flex-1 flex-col justify-center">
-              <ul className="space-y-6">
+            <nav aria-label="Mobile" className="container-luxe my-auto flex flex-col justify-center py-6 sm:py-10">
+              <ul className="space-y-4 sm:space-y-6">
                 {nav.links.map((link, i) => (
                   <motion.li
                     key={link.id}
@@ -153,7 +153,7 @@ export default function Header() {
                     <a
                       href={`#${link.id}`}
                       onClick={close}
-                      className={`font-serif text-4xl transition-colors hover:text-gold-light ${
+                      className={`font-serif text-2xl xs:text-3xl sm:text-4xl transition-colors hover:text-gold-light ${
                         active === link.id ? 'italic text-gold-light' : 'text-ivory'
                       }`}
                     >
@@ -162,7 +162,7 @@ export default function Header() {
                   </motion.li>
                 ))}
               </ul>
-              <div className="mt-12">
+              <div className="mt-8 sm:mt-12">
                 <Button href={nav.cta.href} variant="gold" arrow onClick={close}>
                   {nav.cta.label}
                 </Button>

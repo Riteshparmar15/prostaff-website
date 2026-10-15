@@ -125,9 +125,9 @@ function ContactForm() {
       noValidate
       onSubmit={onSubmit}
       aria-label="Contact form"
-      className="relative space-y-5 rounded-luxe border border-sand bg-white/70 p-7 shadow-card md:p-10"
+      className="relative space-y-4 sm:space-y-5 rounded-luxe border border-sand bg-white/70 p-5 sm:p-7 md:p-10 shadow-card"
     >
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
         <Field name="firstName" error={errors.firstName} required>
           <input type="text" autoComplete="given-name" {...inputProps('firstName')} />
         </Field>
@@ -191,6 +191,7 @@ function ContactForm() {
           arrow={status !== 'sending'}
           disabled={status === 'sending'}
           aria-busy={status === 'sending'}
+          className="w-full justify-center text-center sm:w-auto"
         >
           {status === 'sending' ? (
             <span className="inline-flex items-center gap-2">
@@ -249,27 +250,27 @@ export default function Contact() {
       <div className="container-luxe">
         <SectionHeading id="contact-title" eyebrow={contact.eyebrow} title={contact.title} />
 
-        <div className="mt-16 grid gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-20">
+        <div className="mt-12 sm:mt-16 grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-20">
           <div>
             <Reveal
               as="p"
-              className="font-serif text-2xl italic leading-relaxed text-ink md:text-[1.75rem]"
+              className="font-serif text-xl sm:text-2xl md:text-[1.75rem] italic leading-relaxed text-ink"
             >
               {contact.tagline}
             </Reveal>
 
-            <ul className="mt-12 space-y-6">
+            <ul className="mt-8 sm:mt-12 space-y-5 sm:space-y-6">
               {contact.details.map(({ icon: Icon, label, value, href, external }, i) => (
                 <Reveal
                   as="li"
                   key={label}
                   delay={stagger(i + 1)}
-                  className="group flex items-start gap-5"
+                  className="group flex items-start gap-4 sm:gap-5"
                 >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-luxe border border-gold/40 bg-gold/5 text-gold transition-colors duration-500 group-hover:border-gold group-hover:bg-gold/10">
-                    <Icon aria-hidden="true" strokeWidth={1.25} className="h-5 w-5" />
+                  <span className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-luxe border border-gold/40 bg-gold/5 text-gold transition-colors duration-500 group-hover:border-gold group-hover:bg-gold/10">
+                    <Icon aria-hidden="true" strokeWidth={1.25} className="h-4 w-4 sm:h-5 sm:w-5" />
                   </span>
-                  <span>
+                  <span className="min-w-0 flex-1">
                     <span className="block text-micro font-semibold uppercase tracking-btn text-gold-deep">
                       {label}
                     </span>
@@ -277,12 +278,12 @@ export default function Contact() {
                       <a
                         href={href}
                         {...(external && { target: '_blank', rel: 'noopener noreferrer' })}
-                        className="mt-1 block text-body text-ink transition-colors hover:text-gold-deep"
+                        className="mt-1 block text-body-sm sm:text-body text-ink transition-colors hover:text-gold-deep break-words"
                       >
                         {value}
                       </a>
                     ) : (
-                      <span className="mt-1 block text-body text-ink">{value}</span>
+                      <span className="mt-1 block text-body-sm sm:text-body text-ink break-words">{value}</span>
                     )}
                   </span>
                 </Reveal>

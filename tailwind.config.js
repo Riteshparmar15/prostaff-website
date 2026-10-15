@@ -44,9 +44,9 @@ export default {
         body: ['1rem', { lineHeight: '1.75' }],
         'body-sm': ['0.9375rem', { lineHeight: '1.75' }],
         'card-title': ['1.25rem', { lineHeight: '1.35' }],
-        h2: ['clamp(2rem, 4vw, 3rem)', { lineHeight: '1.15' }],
-        h1: ['clamp(2.6rem, 6vw, 5rem)', { lineHeight: '1.08' }],
-        stat: ['clamp(2.5rem, 5vw, 3.75rem)', { lineHeight: '1' }],
+        h2: ['clamp(1.75rem, 4.5vw, 3rem)', { lineHeight: '1.18' }],
+        h1: ['clamp(2.15rem, 5.5vw, 5rem)', { lineHeight: '1.08' }],
+        stat: ['clamp(2rem, 5vw, 3.75rem)', { lineHeight: '1' }],
       },
       letterSpacing: {
         eyebrow: '0.3em',

@@ -20,15 +20,15 @@ export default function Testimonials() {
           align="center"
         />
 
-        <ul className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-12 sm:mt-16 grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.items.map((t, i) => (
             <Reveal as="li" key={t.quote} delay={stagger(i)}>
-              <figure className="flex h-full flex-col rounded-luxe border border-sand bg-ivory p-8 shadow-card">
-                <Quote aria-hidden="true" strokeWidth={1} className="h-8 w-8 text-gold" />
-                <blockquote className="mt-5 flex-1 font-serif text-lg italic leading-relaxed text-ink">
+              <figure className="flex h-full flex-col rounded-luxe border border-sand bg-ivory p-5 sm:p-8 shadow-card">
+                <Quote aria-hidden="true" strokeWidth={1} className="h-7 w-7 sm:h-8 sm:w-8 text-gold" />
+                <blockquote className="mt-4 sm:mt-5 flex-1 font-serif text-base sm:text-lg italic leading-relaxed text-ink">
                   <p>“{t.quote}”</p>
                 </blockquote>
-                <figcaption className="mt-6 border-t border-sand pt-5">
+                <figcaption className="mt-5 sm:mt-6 border-t border-sand pt-4 sm:pt-5">
                   {t.name && (
                     <span className="block font-serif text-base font-semibold text-onyx">
                       {t.name}

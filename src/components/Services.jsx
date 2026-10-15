@@ -14,7 +14,7 @@ function ServiceCard({ index, icon: Icon, title, description, points }) {
       <motion.article
         whileHover={reduced ? undefined : { y: -6 }}
         transition={HOVER_SPRING}
-        className="group relative flex h-full flex-col overflow-hidden rounded-luxe border border-sand bg-white/70 p-8 shadow-card backdrop-blur-sm transition-[border-color,box-shadow] duration-500 ease-luxe hover:border-gold hover:shadow-card-hover md:p-10"
+        className="group relative flex h-full flex-col overflow-hidden rounded-luxe border border-sand bg-white/70 p-5 sm:p-8 md:p-10 shadow-card backdrop-blur-sm transition-[border-color,box-shadow] duration-500 ease-luxe hover:border-gold hover:shadow-card-hover"
       >
         {/* Top gold bar sweeps in on hover */}
         <span
@@ -23,21 +23,21 @@ function ServiceCard({ index, icon: Icon, title, description, points }) {
         />
 
         <div className="flex items-start justify-between">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-gold/60 text-gold transition-colors duration-500 group-hover:border-gold group-hover:bg-gold/10">
+          <span className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-gold/60 text-gold transition-colors duration-500 group-hover:border-gold group-hover:bg-gold/10">
             <Icon aria-hidden="true" strokeWidth={1.25} className="h-5 w-5" />
           </span>
           <span
             aria-hidden="true"
-            className="font-serif text-5xl font-normal leading-none text-sand transition-colors duration-500 group-hover:text-gold/50"
+            className="font-serif text-4xl sm:text-5xl font-normal leading-none text-sand transition-colors duration-500 group-hover:text-gold/50"
           >
             {number}
           </span>
         </div>
 
-        <h3 className="mt-8 text-card-title font-medium text-ink">{title}</h3>
-        <p className="mt-3 text-body-sm text-stone">{description}</p>
+        <h3 className="mt-6 sm:mt-8 text-xl sm:text-card-title font-medium text-ink">{title}</h3>
+        <p className="mt-2.5 sm:mt-3 text-body-sm text-stone">{description}</p>
 
-        <ul className="mt-6 space-y-2.5 border-t border-sand/80 pt-6">
+        <ul className="mt-5 sm:mt-6 space-y-2.5 border-t border-sand/80 pt-5 sm:pt-6">
           {points.map((point) => (
             <li key={point} className="flex items-start gap-3 text-sm text-stone">
               <span aria-hidden="true" className="mt-2.5 h-px w-3 shrink-0 bg-gold" />

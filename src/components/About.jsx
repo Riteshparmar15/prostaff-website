@@ -9,13 +9,13 @@ import useReducedMotion from '../hooks/useReducedMotion';
 function ValueItem({ icon: Icon, title, description, delay }) {
   return (
     <Reveal delay={delay}>
-      <div className="group relative flex gap-5 overflow-hidden rounded-luxe border border-sand bg-white/70 p-6 shadow-card transition-[border-color,box-shadow,transform] duration-500 ease-luxe hover:translate-x-1 hover:border-gold/60 hover:shadow-card-hover">
+      <div className="group relative flex gap-3.5 sm:gap-5 overflow-hidden rounded-luxe border border-sand bg-white/70 p-4 sm:p-6 shadow-card transition-[border-color,box-shadow,transform] duration-500 ease-luxe hover:translate-x-1 hover:border-gold/60 hover:shadow-card-hover">
         {/* Gold rail that grows on hover */}
         <span
           aria-hidden="true"
           className="absolute inset-y-0 left-0 w-0.5 origin-top scale-y-50 bg-gold-gradient transition-transform duration-500 ease-luxe group-hover:scale-y-100"
         />
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/60 text-gold transition-colors duration-500 group-hover:bg-gold/10">
+        <span className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full border border-gold/60 text-gold transition-colors duration-500 group-hover:bg-gold/10">
           <Icon aria-hidden="true" strokeWidth={1.25} className="h-5 w-5" />
         </span>
         <div>
@@ -37,7 +37,7 @@ export default function About() {
       <div className="container-luxe">
         <SectionHeading id="about-title" eyebrow={about.eyebrow} title={about.title} />
 
-        <div className="mt-16 grid gap-14 lg:grid-cols-2 lg:gap-20">
+        <div className="mt-12 sm:mt-16 grid gap-12 lg:grid-cols-2 lg:gap-20">
           {/* Story + values */}
           <div>
             {about.paragraphs.map((para, i) => (
@@ -48,7 +48,7 @@ export default function About() {
 
             <motion.div
               aria-hidden="true"
-              className="my-10 h-px w-16 origin-left bg-gold"
+              className="my-8 sm:my-10 h-px w-16 origin-left bg-gold"
               initial={reduced ? false : { scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
@@ -87,16 +87,16 @@ export default function About() {
               />
             </Reveal>
             <Reveal delay={stagger(1)}>
-              <figure className="surface-grain relative overflow-hidden rounded-luxe bg-onyx p-10 shadow-card-hover md:p-12">
+              <figure className="surface-grain relative overflow-hidden rounded-luxe bg-onyx p-6 sm:p-10 md:p-12 shadow-card-hover">
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute -right-20 -top-20 -z-10 h-64 w-64 rounded-full bg-gold/15 blur-3xl"
                 />
-                <Quote aria-hidden="true" strokeWidth={1} className="h-12 w-12 text-gold/70" />
-                <blockquote className="mt-6 font-serif text-2xl font-normal italic leading-relaxed text-ivory md:text-[1.75rem]">
+                <Quote aria-hidden="true" strokeWidth={1} className="h-10 w-10 sm:h-12 sm:w-12 text-gold/70" />
+                <blockquote className="mt-4 sm:mt-6 font-serif text-xl sm:text-2xl font-normal italic leading-relaxed text-ivory md:text-[1.75rem]">
                   <p>“{about.quote.text}”</p>
                 </blockquote>
-                <figcaption className="mt-8 flex items-center gap-4 text-eyebrow font-medium uppercase tracking-btn text-gold-light">
+                <figcaption className="mt-6 sm:mt-8 flex items-center gap-4 text-eyebrow font-medium uppercase tracking-btn text-gold-light">
                   <span aria-hidden="true" className="h-px w-8 bg-gold-light" />
                   {about.quote.cite}
                 </figcaption>
@@ -107,10 +107,10 @@ export default function About() {
 
         {/* Prostaff – A Division of Dubey Enterprises */}
         {about.division && (
-          <Reveal delay={stagger(2)} className="mt-16 lg:mt-24">
+          <Reveal delay={stagger(2)} className="mt-14 lg:mt-24">
             <div
               id="corporate-identity"
-              className="group relative overflow-hidden rounded-luxe border border-sand bg-white/85 p-8 shadow-card backdrop-blur-sm transition-all duration-500 ease-luxe hover:border-gold/60 hover:shadow-card-hover md:p-10 lg:p-12"
+              className="group relative overflow-hidden rounded-luxe border border-sand bg-white/85 p-5 sm:p-8 md:p-10 lg:p-12 shadow-card backdrop-blur-sm transition-all duration-500 ease-luxe hover:border-gold/60 hover:shadow-card-hover"
             >
               {/* Gold rail & subtle luxury radiance */}
               <span
@@ -124,16 +124,16 @@ export default function About() {
 
               <div className="flex flex-col gap-6 lg:gap-8">
                 {/* Header row */}
-                <div className="flex flex-col gap-4 border-b border-sand pb-6 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-start gap-4">
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold/10 text-gold-deep transition-colors duration-500 group-hover:bg-gold/20">
-                      <Building2 aria-hidden="true" strokeWidth={1.25} className="h-6 w-6" />
+                <div className="flex flex-col gap-4 border-b border-sand pb-5 sm:pb-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3.5 sm:gap-4">
+                    <span className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold/10 text-gold-deep transition-colors duration-500 group-hover:bg-gold/20">
+                      <Building2 aria-hidden="true" strokeWidth={1.25} className="h-5 w-5 sm:h-6 sm:w-6" />
                     </span>
                     <div>
-                      <span className="font-sans text-micro font-semibold uppercase tracking-eyebrow text-gold-deep">
+                      <span className="font-sans text-[0.6875rem] sm:text-micro font-semibold uppercase tracking-eyebrow text-gold-deep">
                         {about.division.eyebrow}
                       </span>
-                      <h3 className="mt-1 font-serif text-2xl font-normal text-onyx md:text-3xl">
+                      <h3 className="mt-1 font-serif text-xl sm:text-2xl md:text-3xl font-normal text-onyx">
                         {about.division.title}
                       </h3>
                     </div>
@@ -143,7 +143,7 @@ export default function About() {
                     {about.division.badges.map((badge) => (
                       <span
                         key={badge}
-                        className="rounded-full border border-gold/30 bg-gold/5 px-3.5 py-1 font-sans text-micro font-medium text-gold-deep"
+                        className="rounded-full border border-gold/30 bg-gold/5 px-2.5 sm:px-3.5 py-1 font-sans text-[0.625rem] sm:text-micro font-medium text-gold-deep"
                       >
                         {badge}
                       </span>
@@ -152,15 +152,15 @@ export default function About() {
                 </div>
 
                 {/* Narrative paragraphs */}
-                <div className="grid gap-6 md:grid-cols-2 md:gap-10">
+                <div className="grid gap-4 sm:gap-6 md:grid-cols-2 md:gap-10">
                   {about.division.paragraphs.map((para, i) => (
                     <div
                       key={i}
-                      className="relative rounded-luxe border border-sand/60 bg-ivory/60 p-6 transition-colors duration-300 hover:border-gold/40 hover:bg-ivory/90"
+                      className="relative rounded-luxe border border-sand/60 bg-ivory/60 p-4 sm:p-6 transition-colors duration-300 hover:border-gold/40 hover:bg-ivory/90"
                     >
                       <span
                         aria-hidden="true"
-                        className="absolute left-0 top-6 h-6 w-0.5 rounded-r bg-gold"
+                        className="absolute left-0 top-5 sm:top-6 h-6 w-0.5 rounded-r bg-gold"
                       />
                       <p className="pl-2 text-body leading-relaxed text-stone">
                         {para}

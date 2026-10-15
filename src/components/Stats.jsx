@@ -15,18 +15,18 @@ export default function Stats() {
       />
 
       <div className="container-luxe">
-        <dl className="grid grid-cols-2 gap-y-12 lg:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-y-10 sm:gap-y-12 lg:grid-cols-4">
           {stats.map((stat, i) => (
             <Reveal
               key={stat.label}
               delay={stagger(i)}
               className={[
-                'flex flex-col-reverse items-center px-4 text-center',
+                'flex flex-col-reverse items-center px-2 xs:px-4 text-center',
                 i % 2 === 1 ? 'border-l border-gold/25' : '',
                 i > 0 ? 'lg:border-l lg:border-gold/25' : 'lg:border-l-0',
               ].join(' ')}
             >
-              <dt className="mt-4 text-eyebrow font-medium uppercase tracking-eyebrow text-mist">
+              <dt className="mt-3 sm:mt-4 text-[0.625rem] xs:text-eyebrow font-medium uppercase tracking-wider xs:tracking-eyebrow text-mist">
                 {stat.label}
               </dt>
               <dd className="font-serif text-stat font-normal text-gold-light">

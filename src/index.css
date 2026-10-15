@@ -10,6 +10,7 @@
     scroll-behavior: smooth;
     scroll-padding-top: theme('spacing.header');
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
   }
 
   /* Lenis drives the scroll itself; native smoothing would fight it */
@@ -24,8 +25,15 @@
 
   body {
     @apply bg-ivory font-sans text-body font-light text-stone antialiased;
-    overflow-x: clip;
+    overflow-x: hidden;
+    width: 100%;
     text-rendering: optimizeLegibility;
+  }
+
+  img,
+  video,
+  svg {
+    max-width: 100%;
   }
 
   h1,
