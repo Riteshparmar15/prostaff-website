@@ -30,7 +30,8 @@ import {
 
 export const brand = {
   name: 'Prostaff Solution',
-  legalName: 'Prostaff Solution Private Limited',
+  legalName: 'Dubey Enterprises',
+  parentCompany: 'Dubey Enterprises',
   wordmark: 'Prostaff',
   wordmarkSub: 'Solution',
   monogram: 'PS',
@@ -285,7 +286,7 @@ export const about = {
   paragraphs: [
     [
       {
-        text: 'Prostaff Solution Private Limited was founded with a singular vision: to bridge the gap between ',
+        text: 'Prostaff was founded with a singular vision: to bridge the gap between ',
       },
       { text: 'extraordinary talent', strong: true },
       {
@@ -302,6 +303,19 @@ export const about = {
       { text: ' that last.' },
     ],
   ],
+  division: {
+    eyebrow: 'Corporate Structure & Brand Identity',
+    title: 'Prostaff – A Division of Dubey Enterprises',
+    paragraphs: [
+      'Prostaff is a recruitment and HR consultancy brand operated and owned by Dubey Enterprises. The name “Prostaff” is used as a brand and trade identity for business representation, marketing, and recruitment services. All business operations under the Prostaff brand are conducted by Dubey Enterprises.',
+      'Prostaff is not a separate legal entity but a brand name used by Dubey Enterprises to provide recruitment, staffing, and human resource consultancy services.',
+    ],
+    badges: [
+      'Recruitment & HR Consultancy Brand',
+      'Operated & Owned by Dubey Enterprises',
+      'Unified Business Operations',
+    ],
+  },
   values: [
     {
       icon: Crosshair,
@@ -584,9 +598,9 @@ export const footer = {
       ].filter(Boolean),
     },
   ],
-  copyright: `© ${new Date().getFullYear()} Prostaff Solution Private Limited. All rights reserved.`,
+  copyright: `© ${new Date().getFullYear()} Prostaff · A Division of Dubey Enterprises. All rights reserved.`,
   registration: [
-    'Pvt. Ltd. Registered in India',
+    'A Division of Dubey Enterprises',
     company.cin && `CIN ${company.cin}`,
     company.gst && `GSTIN ${company.gst}`,
   ]
