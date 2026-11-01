@@ -14,7 +14,7 @@ export default function RichText({ segments, tone = 'light' }) {
       return (
         <em
           key={i}
-          className={`font-normal italic ${tone === 'dark' ? 'text-gold-light' : 'text-gold'}`}
+          className={`font-normal italic ${tone === 'dark' ? 'text-gold-light' : 'text-bronze'}`}
         >
           {seg.text}
         </em>

@@ -22,13 +22,14 @@ export function unlockScroll() {
   lenis?.start();
 }
 
-/** Glide to an element; both paths honour the CSS scroll-padding that clears the fixed header. */
+/** Glide to an element (or a pixel offset); both paths honour the CSS scroll-padding that clears the fixed header. */
 export function scrollToTarget(target) {
   if (lenis) {
     lenis.scrollTo(target, { duration: SCROLL_DURATION, easing: easeOutExpo });
     return;
   }
-  target.scrollIntoView();
+  if (typeof target === 'number') window.scrollTo(0, target);
+  else target.scrollIntoView();
 }
 
 // Move focus with the scroll so keyboard and screen-reader users land in the new section
@@ -50,9 +51,19 @@ function onAnchorClick(e) {
 
   e.preventDefault();
   if (window.location.hash !== `#${id}`) window.history.pushState(null, '', `#${id}`);
-  focusTarget(target);
-  // Wait a frame so overlays closed by the same click can release their scroll lock
-  requestAnimationFrame(() => scrollToTarget(target));
+  // Wait a frame so overlays closed by the same click can release their scroll lock and inert page
+  requestAnimationFrame(() => {
+    focusTarget(target);
+    scrollToTarget(target);
+  });
+}
+
+// Section links add history entries with pushState, and index.html disables scroll
+// restoration, so Back/Forward would change the URL without moving the page.
+function onPopState() {
+  const id = window.location.hash.slice(1);
+  const target = id && document.getElementById(decodeURIComponent(id));
+  scrollToTarget(target || 0);
 }
 
 /** Site-wide inertial scrolling plus smooth in-page anchor navigation. Returns a cleanup. */
@@ -68,9 +79,11 @@ export function initSmoothScroll() {
     if (locks > 0) lenis.stop();
   }
   document.addEventListener('click', onAnchorClick);
+  window.addEventListener('popstate', onPopState);
 
   return () => {
     document.removeEventListener('click', onAnchorClick);
+    window.removeEventListener('popstate', onPopState);
     lenis?.destroy();
     lenis = null;
   };

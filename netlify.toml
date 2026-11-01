@@ -1,0 +1,14 @@
+# Netlify reads this automatically when the site is connected from Git.
+# Response headers live in public/_headers (copied into dist/), so they also apply to drag-and-drop uploads.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Contact form channels are configured in Netlify: Site configuration > Environment variables.
+#   VITE_SHEETS_ENDPOINT   optional Google Sheets web app URL (see google-apps-script/Code.gs)
+#   VITE_CONTACT_ENDPOINT  optional; defaults to FormSubmit for company.enquiryInbox
+# Netlify serves dist/404.html for unknown URLs automatically.

@@ -53,6 +53,7 @@ const unsplash = (photoId, params = '') =>
  */
 export const company = {
   email: 'adarsh.dubeyenterprises@gmail.com',
+  enquiryInbox: 'ritesh.parmar1599@gmail.com', // receives contact-form submissions
   foundedYear: null, // e.g. 2022
   address: 'Prostaff, Parshwa Complex, Ellora Park, Subhanpura, Vadodara, Gujarat - 390023',
   phone: '+91 90235 58486',
@@ -531,8 +532,22 @@ export const contact = {
       required: 'This field is required.',
       emailInvalid: 'Please enter a valid email address.',
     },
-    // Set VITE_CONTACT_ENDPOINT in .env (see .env.example). Falls back to the dev mock.
-    endpoint: import.meta.env.VITE_CONTACT_ENDPOINT || '/api/contact',
+    // Branded emails via EmailJS when all three keys are set in .env (see .env.example)
+    emailjs:
+      import.meta.env.VITE_EMAILJS_SERVICE_ID &&
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID &&
+      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        ? {
+            serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+            publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+          }
+        : null,
+    // Otherwise FormSubmit emails each submission to the inbox. Override with VITE_CONTACT_ENDPOINT.
+    endpoint:
+      import.meta.env.VITE_CONTACT_ENDPOINT || `https://formsubmit.co/ajax/${company.enquiryInbox}`,
+    // Also saves each enquiry to the owner's Google Sheet when set (see google-apps-script/Code.gs)
+    sheetsEndpoint: import.meta.env.VITE_SHEETS_ENDPOINT || null,
   },
 };
 

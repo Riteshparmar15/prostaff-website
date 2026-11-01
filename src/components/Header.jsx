@@ -42,14 +42,20 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Lock page scroll and allow Esc to close while the mobile menu is open.
+  // Lock page scroll, keep focus out of the covered page and allow Esc to close while the mobile menu is open.
   useEffect(() => {
     if (!open) return undefined;
     lockScroll();
+    const menu = document.getElementById('mobile-menu');
+    const covered = menu
+      ? [...menu.parentElement.children].filter((el) => el !== menu && el.tagName !== 'HEADER')
+      : [];
+    covered.forEach((el) => el.setAttribute('inert', ''));
     const onKey = (e) => e.key === 'Escape' && setOpen(false);
     window.addEventListener('keydown', onKey);
     return () => {
       unlockScroll();
+      covered.forEach((el) => el.removeAttribute('inert'));
       window.removeEventListener('keydown', onKey);
     };
   }, [open]);

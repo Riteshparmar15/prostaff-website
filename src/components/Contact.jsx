@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import { contact } from '../data/content';
@@ -10,6 +10,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const REQUIRED = ['firstName', 'lastName', 'email', 'profile', 'message'];
 const INITIAL = { firstName: '', lastName: '', email: '', phone: '', profile: '', message: '' };
 const SUCCESS_TIMEOUT = 5000;
+const REQUEST_TIMEOUT = 15000;
 const HONEYPOT = 'company_website';
 
 function validate(values) {
@@ -20,6 +21,90 @@ function validate(values) {
   });
   if (!out.email && !EMAIL_RE.test(values.email.trim())) out.email = errors.emailInvalid;
   return out;
+}
+
+async function sendEnquiry(values) {
+  const enquiry = {
+    name: `${values.firstName.trim()} ${values.lastName.trim()}`,
+    email: values.email.trim(),
+    phone: values.phone.trim() || 'Not provided',
+    profile: values.profile,
+    message: values.message.trim(),
+    submittedAt: `${new Date().toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    })} IST`,
+  };
+  const channels = [contact.form.emailjs ? sendViaEmailJS(enquiry) : sendViaFormEndpoint(enquiry)];
+  if (contact.form.sheetsEndpoint) channels.push(sendViaGoogleSheets(enquiry));
+
+  // The enquiry counts as received when at least one channel confirms it
+  const results = await Promise.allSettled(channels);
+  const failures = results.filter((r) => r.status === 'rejected').map((r) => r.reason);
+  if (failures.length === results.length) throw failures[0];
+  failures.forEach((err) => console.warn('Enquiry channel failed:', err));
+}
+
+async function sendViaGoogleSheets(enquiry) {
+  const res = await fetch(contact.form.sheetsEndpoint, {
+    method: 'POST',
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT),
+    // text/plain keeps this a simple CORS request; Apps Script cannot answer preflight requests
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ ...enquiry, [HONEYPOT]: '' }),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok || data?.ok !== true) {
+    throw new Error(`Google Sheets: ${data?.error || `request failed (${res.status})`}`);
+  }
+}
+
+async function sendViaEmailJS(enquiry) {
+  const { serviceId, templateId, publicKey } = contact.form.emailjs;
+  const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    method: 'POST',
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      service_id: serviceId,
+      template_id: templateId,
+      user_id: publicKey,
+      template_params: {
+        ...enquiry,
+        submitted_at: enquiry.submittedAt,
+        reply_to: enquiry.email,
+      },
+    }),
+  });
+  if (!res.ok) throw new Error(`EmailJS ${res.status}: ${await res.text()}`);
+}
+
+async function sendViaFormEndpoint(enquiry) {
+  // Accept header makes FormSubmit / Formspree / Getform reply with JSON instead of redirecting
+  const res = await fetch(contact.form.endpoint, {
+    method: 'POST',
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT),
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      'Full Name': enquiry.name,
+      'Email Address': enquiry.email,
+      'Phone Number': enquiry.phone,
+      'Enquiry Type': enquiry.profile,
+      Message: enquiry.message,
+      'Submitted On': enquiry.submittedAt,
+      _subject: `New website enquiry (${enquiry.profile}) — ${enquiry.name}`,
+      _replyto: enquiry.email,
+      _template: 'table',
+      _captcha: 'false',
+    }),
+  });
+  // FormSubmit answers 200 with { success: "false" } when the inbox is not yet activated.
+  // A non-JSON 200 (proxy, captive portal or challenge page) is not proof of delivery.
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data || String(data.success) === 'false') {
+    throw new Error(data.message || `Request failed: ${res.status}`);
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -61,6 +146,8 @@ function ContactForm() {
   const [values, setValues] = useState(INITIAL);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | sending | success | error
+  // The disabled button only applies after a re-render, so a fast double-click could send twice
+  const sendingRef = useRef(false);
 
   const succeed = () => {
     setStatus('success');
@@ -85,6 +172,7 @@ function ContactForm() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (sendingRef.current) return;
     const found = validate(values);
     setErrors(found);
     const firstInvalid = REQUIRED.find((k) => found[k]);
@@ -99,24 +187,16 @@ function ContactForm() {
       return;
     }
 
+    sendingRef.current = true;
     setStatus('sending');
     try {
-      // Accept header makes Formspree / Getform / Web3Forms reply with JSON instead of redirecting
-      const res = await fetch(f.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          ...values,
-          name: `${values.firstName} ${values.lastName}`.trim(),
-          _subject: `New enquiry (${values.profile}) — ${values.firstName} ${values.lastName}`,
-          _replyto: values.email,
-        }),
-      });
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      await sendEnquiry(values);
       succeed();
     } catch (err) {
       console.error(err);
       setStatus('error');
+    } finally {
+      sendingRef.current = false;
     }
   };
 
@@ -250,7 +330,7 @@ export default function Contact() {
       <div className="container-luxe">
         <SectionHeading id="contact-title" eyebrow={contact.eyebrow} title={contact.title} />
 
-        <div className="mt-12 sm:mt-16 grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-20">
+        <div className="mt-12 sm:mt-16 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-20">
           <div>
             <Reveal
               as="p"

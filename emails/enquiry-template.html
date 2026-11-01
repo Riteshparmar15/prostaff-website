@@ -1,0 +1,65 @@
+<!--
+  EmailJS template for website enquiries.
+  Paste this into EmailJS → Email Templates → your template → Content → "Edit Content" → Code editor.
+  Subject:   New website enquiry ({{profile}}) — {{name}}
+  To Email:  ritesh.parmar1599@gmail.com
+  From Name: Prostaff Website
+  Reply To:  {{reply_to}}
+-->
+<div style="margin:0;padding:24px 12px;background:#FBF8F3;font-family:Arial,Helvetica,sans-serif;color:#1B1B1F;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #E6DAC6;border-radius:6px;overflow:hidden;">
+    <tr>
+      <td style="background:#0F1115;padding:28px 32px;text-align:center;">
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;letter-spacing:1px;color:#C9A96E;">Prostaff</div>
+        <div style="margin-top:4px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#E6DAC6;">Premium Staffing Solutions</div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:32px 32px 8px;">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9C7A4B;font-weight:bold;">New Website Enquiry</div>
+        <h1 style="margin:8px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:normal;color:#1B1B1F;">{{name}}</h1>
+        <div style="margin-top:6px;display:inline-block;padding:4px 12px;border:1px solid #C9A96E;border-radius:20px;font-size:12px;color:#9C7A4B;">{{profile}}</div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:16px 32px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px;">
+          <tr>
+            <td style="padding:12px 0;border-bottom:1px solid #F0E9DD;width:140px;color:#6F6A62;">Full Name</td>
+            <td style="padding:12px 0;border-bottom:1px solid #F0E9DD;">{{name}}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 0;border-bottom:1px solid #F0E9DD;color:#6F6A62;">Email Address</td>
+            <td style="padding:12px 0;border-bottom:1px solid #F0E9DD;"><a href="mailto:{{email}}" style="color:#9C7A4B;">{{email}}</a></td>
+          </tr>
+          <tr>
+            <td style="padding:12px 0;border-bottom:1px solid #F0E9DD;color:#6F6A62;">Phone Number</td>
+            <td style="padding:12px 0;border-bottom:1px solid #F0E9DD;">{{phone}}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 0;border-bottom:1px solid #F0E9DD;color:#6F6A62;">Enquiry Type</td>
+            <td style="padding:12px 0;border-bottom:1px solid #F0E9DD;">{{profile}}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 0;color:#6F6A62;">Submitted On</td>
+            <td style="padding:12px 0;">{{submitted_at}}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:8px 32px 32px;">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#9C7A4B;font-weight:bold;">Message</div>
+        <div style="margin-top:10px;padding:16px 18px;background:#FBF8F3;border-left:3px solid #C9A96E;font-size:14px;line-height:1.6;white-space:pre-wrap;">{{message}}</div>
+        <div style="margin-top:28px;text-align:center;">
+          <a href="mailto:{{email}}?subject=Re:%20Your%20enquiry%20with%20Prostaff" style="display:inline-block;padding:12px 28px;background:#C9A96E;color:#0F1115;text-decoration:none;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;border-radius:4px;">Reply to {{name}}</a>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:18px 32px;background:#FBF8F3;border-top:1px solid #E6DAC6;text-align:center;font-size:11px;color:#6F6A62;">
+        Sent from the contact form on the Prostaff website.<br>Prostaff · A Division of Dubey Enterprises
+      </td>
+    </tr>
+  </table>
+</div>

@@ -8,3 +8,6 @@ dist-ssr
 .DS_Store
 *.log
 dist-file
+playwright-report
+test-results
+lighthouse

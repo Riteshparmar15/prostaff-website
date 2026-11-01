@@ -1,11 +1,12 @@
 import js from '@eslint/js';
 import globals from 'globals';
-import react from 'eslint-plugin-react';
+import eslintReact from '@eslint-react/eslint-plugin';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
-  { ignores: ['dist', 'dist-ssr', 'node_modules'] },
+  { ignores: ['dist', 'dist-ssr', 'node_modules', 'playwright-report', 'test-results', 'lighthouse'] },
   js.configs.recommended,
+  { files: ['**/*.{js,jsx}'], ...eslintReact.configs.recommended },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -14,13 +15,15 @@ export default [
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
-    settings: { react: { version: '18.3' } },
-    plugins: { react, 'react-hooks': reactHooks },
+    settings: { 'react-x': { version: '18.3' } },
+    plugins: { 'react-hooks': reactHooks },
     rules: {
-      ...react.configs.recommended.rules,
-      ...react.configs['jsx-runtime'].rules,
-      ...reactHooks.configs.recommended.rules,
-      'react/prop-types': 'off',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      // Index keys are only used on static, never-reordered content arrays;
+      // effects that set state read window/scroll position on mount.
+      '@eslint-react/no-array-index-key': 'off',
+      '@eslint-react/set-state-in-effect': 'off',
       'no-unused-vars': ['error', { varsIgnorePattern: '^_', argsIgnorePattern: '^_' }],
     },
   },
@@ -31,5 +34,11 @@ export default [
   {
     files: ['src/test/**'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
+  {
+    // Playwright fixtures receive a `use` callback that is not React's `use` hook
+    files: ['e2e/**'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    rules: { 'react-hooks/rules-of-hooks': 'off', '@eslint-react/rules-of-hooks': 'off' },
   },
 ];

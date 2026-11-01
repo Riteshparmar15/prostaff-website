@@ -174,7 +174,7 @@ export default function Logo({ tone = 'light', delay = 0, className = '' }) {
           transition={{ duration: 1.2, ease: EASE_LUXE, delay: delay + 0.5 }}
         >
           {brand.wordmark}
-        </motion.span>
+        </motion.span>{' '}
         <motion.span
           className="mt-1.5 sm:mt-2 font-sans text-[0.625rem] sm:text-micro font-medium uppercase tracking-[0.32em] sm:tracking-[0.42em] text-gold-light"
           initial={reduced ? false : { opacity: 0 }}

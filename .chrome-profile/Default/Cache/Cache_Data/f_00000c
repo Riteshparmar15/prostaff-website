@@ -1,0 +1,436 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/Industries.jsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=5f8dba20"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+let prevRefreshReg;
+let prevRefreshSig;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  prevRefreshReg = window.$RefreshReg$;
+  prevRefreshSig = window.$RefreshSig$;
+  window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx");
+  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+}
+var _s = $RefreshSig$();
+import __vite__cjsImport3_react from "/node_modules/.vite/deps/react.js?v=5f8dba20"; const useState = __vite__cjsImport3_react["useState"];
+import { AnimatePresence, motion } from "/node_modules/.vite/deps/framer-motion.js?v=5f8dba20";
+import { industries } from "/src/data/content.js?t=1793118746157";
+import Reveal, { EASE_LUXE, stagger } from "/src/components/ui/Reveal.jsx?t=1793118746275";
+import useReducedMotion from "/src/hooks/useReducedMotion.js?t=1793118746275";
+const pad = (n) => String(n).padStart(2, "0");
+function Panel({ item, index, active, onActivate, reduced }) {
+  const { icon: Icon, name, image, roles } = item;
+  return /* @__PURE__ */ jsxDEV(
+    motion.li,
+    {
+      className: `relative min-w-0 lg:h-full ${index === 4 ? "col-span-2" : ""} ${index < 3 ? "md:col-span-2" : "md:col-span-3"}`,
+      initial: false,
+      animate: { flexGrow: active ? 3.4 : 1 },
+      transition: { duration: 0.8, ease: EASE_LUXE },
+      style: { flexBasis: 0 },
+      children: /* @__PURE__ */ jsxDEV(
+        "button",
+        {
+          type: "button",
+          "aria-pressed": active,
+          "aria-label": roles?.length ? `${name}: ${roles.join(", ")}` : name,
+          onMouseEnter: onActivate,
+          onFocus: onActivate,
+          onClick: onActivate,
+          className: `group relative block h-full w-full overflow-hidden rounded-luxe border text-left transition-[border-color,box-shadow] duration-700 ease-luxe lg:aspect-auto ${index === 4 ? "aspect-[16/9]" : "aspect-[3/4]"} ${index < 3 ? "md:aspect-[3/4]" : "md:aspect-[16/10]"} ${active ? "border-gold/60 shadow-[0_30px_80px_-30px_rgba(184,149,90,0.45)]" : "border-ivory/10 hover:border-gold/30"}`,
+          children: [
+            /* @__PURE__ */ jsxDEV("picture", { children: [
+              /* @__PURE__ */ jsxDEV("source", { srcSet: image.mobile.replace(/\.webp$/, ".avif"), type: "image/avif" }, void 0, false, {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 55,
+                columnNumber: 11
+              }, this),
+              /* @__PURE__ */ jsxDEV(
+                "img",
+                {
+                  src: image.mobile,
+                  alt: image.alt || name,
+                  loading: "lazy",
+                  decoding: "async",
+                  width: "900",
+                  height: "1200",
+                  className: `absolute inset-0 h-full w-full object-cover transition-[transform,filter] duration-[1.6s] ease-luxe ${active ? "scale-105 grayscale-0" : "scale-100 grayscale-[20%] group-hover:scale-105 group-hover:grayscale-0"}`
+                },
+                void 0,
+                false,
+                {
+                  fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                  lineNumber: 56,
+                  columnNumber: 11
+                },
+                this
+              )
+            ] }, void 0, true, {
+              fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+              lineNumber: 54,
+              columnNumber: 9
+            }, this),
+            /* @__PURE__ */ jsxDEV(
+              "span",
+              {
+                "aria-hidden": "true",
+                className: "absolute inset-0 bg-gradient-to-t from-onyx via-onyx/25 to-transparent"
+              },
+              void 0,
+              false,
+              {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 72,
+                columnNumber: 9
+              },
+              this
+            ),
+            /* @__PURE__ */ jsxDEV(
+              "span",
+              {
+                "aria-hidden": "true",
+                className: `absolute inset-0 bg-gradient-to-t from-onyx/80 to-transparent transition-opacity duration-700 ${active ? "opacity-0" : "opacity-40 lg:opacity-50"}`
+              },
+              void 0,
+              false,
+              {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 76,
+                columnNumber: 9
+              },
+              this
+            ),
+            /* @__PURE__ */ jsxDEV("span", { className: "absolute left-5 top-5 flex items-center gap-3 font-sans text-micro font-medium tracking-btn text-gold-light", children: [
+              pad(index + 1),
+              /* @__PURE__ */ jsxDEV(
+                "span",
+                {
+                  "aria-hidden": "true",
+                  className: `h-px bg-gold transition-all duration-700 ease-luxe ${active ? "w-10" : "w-4"}`
+                },
+                void 0,
+                false,
+                {
+                  fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                  lineNumber: 86,
+                  columnNumber: 11
+                },
+                this
+              )
+            ] }, void 0, true, {
+              fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+              lineNumber: 84,
+              columnNumber: 9
+            }, this),
+            /* @__PURE__ */ jsxDEV(
+              "span",
+              {
+                "aria-hidden": "true",
+                className: `absolute bottom-6 left-1/2 hidden -translate-x-1/2 whitespace-nowrap font-serif text-2xl italic text-ivory/90 transition-opacity duration-500 [writing-mode:vertical-rl] lg:block ${active ? "opacity-0" : "rotate-180"}`,
+                children: name
+              },
+              void 0,
+              false,
+              {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 93,
+                columnNumber: 9
+              },
+              this
+            ),
+            /* @__PURE__ */ jsxDEV(
+              "span",
+              {
+                className: `absolute inset-x-0 bottom-0 p-3.5 sm:p-5 md:p-7 ${active ? "" : "lg:hidden"}`,
+                children: /* @__PURE__ */ jsxDEV(AnimatePresence, { mode: "wait", children: /* @__PURE__ */ jsxDEV(
+                  motion.span,
+                  {
+                    className: "block",
+                    initial: reduced ? false : { opacity: 0, y: 18 },
+                    animate: { opacity: 1, y: 0 },
+                    transition: { duration: 0.6, ease: EASE_LUXE, delay: active ? 0.25 : 0 },
+                    children: [
+                      /* @__PURE__ */ jsxDEV("span", { className: "flex h-9 w-9 sm:h-12 sm:w-12 md:h-14 md:w-14 items-center justify-center rounded-full border border-gold/60 bg-onyx/40 text-gold-light", children: /* @__PURE__ */ jsxDEV(
+                        Icon,
+                        {
+                          "aria-hidden": "true",
+                          strokeWidth: 1.25,
+                          className: "h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6"
+                        },
+                        void 0,
+                        false,
+                        {
+                          fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                          lineNumber: 115,
+                          columnNumber: 17
+                        },
+                        this
+                      ) }, void 0, false, {
+                        fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                        lineNumber: 114,
+                        columnNumber: 15
+                      }, this),
+                      /* @__PURE__ */ jsxDEV("span", { className: "mt-2.5 sm:mt-4 block font-serif text-sm xs:text-base sm:text-2xl md:text-3xl lg:text-4xl leading-tight break-words text-ivory", children: name }, void 0, false, {
+                        fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                        lineNumber: 121,
+                        columnNumber: 15
+                      }, this),
+                      /* @__PURE__ */ jsxDEV(
+                        "span",
+                        {
+                          "aria-hidden": "true",
+                          className: "mt-2.5 sm:mt-4 block h-px w-8 sm:w-14 bg-gold-gradient"
+                        },
+                        void 0,
+                        false,
+                        {
+                          fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                          lineNumber: 124,
+                          columnNumber: 15
+                        },
+                        this
+                      ),
+                      roles?.length > 0 && /* @__PURE__ */ jsxDEV(
+                        "span",
+                        {
+                          className: `mt-4 flex-wrap gap-x-4 gap-y-1.5 ${active ? "hidden md:flex" : "hidden"}`,
+                          children: roles.map(
+                            (role) => /* @__PURE__ */ jsxDEV(
+                              "span",
+                              {
+                                className: "flex items-center gap-2 text-micro font-medium uppercase tracking-btn text-ivory/80",
+                                children: [
+                                  /* @__PURE__ */ jsxDEV("span", { "aria-hidden": "true", className: "h-1 w-1 rotate-45 bg-gold" }, void 0, false, {
+                                    fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                                    lineNumber: 137,
+                                    columnNumber: 23
+                                  }, this),
+                                  role
+                                ]
+                              },
+                              role,
+                              true,
+                              {
+                                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                                lineNumber: 133,
+                                columnNumber: 17
+                              },
+                              this
+                            )
+                          )
+                        },
+                        void 0,
+                        false,
+                        {
+                          fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                          lineNumber: 129,
+                          columnNumber: 15
+                        },
+                        this
+                      )
+                    ]
+                  },
+                  active ? "open" : "closed",
+                  true,
+                  {
+                    fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                    lineNumber: 107,
+                    columnNumber: 13
+                  },
+                  this
+                ) }, void 0, false, {
+                  fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                  lineNumber: 106,
+                  columnNumber: 11
+                }, this)
+              },
+              void 0,
+              false,
+              {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 103,
+                columnNumber: 9
+              },
+              this
+            )
+          ]
+        },
+        void 0,
+        true,
+        {
+          fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+          lineNumber: 39,
+          columnNumber: 7
+        },
+        this
+      )
+    },
+    void 0,
+    false,
+    {
+      fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+      lineNumber: 32,
+      columnNumber: 5
+    },
+    this
+  );
+}
+_c = Panel;
+export default function Industries() {
+  _s();
+  const reduced = useReducedMotion();
+  const [active, setActive] = useState(0);
+  const title = industries.title.split(" ");
+  const lastWord = title.pop();
+  return /* @__PURE__ */ jsxDEV(
+    "section",
+    {
+      id: "industries",
+      "aria-labelledby": "industries-title",
+      className: "surface-grain relative isolate overflow-hidden bg-onyx py-20 md:py-28",
+      children: [
+        /* @__PURE__ */ jsxDEV(
+          "div",
+          {
+            "aria-hidden": "true",
+            className: "pointer-events-none absolute left-1/2 top-0 -z-10 h-80 w-[48rem] max-w-full -translate-x-1/2 rounded-full bg-gold/10 blur-3xl"
+          },
+          void 0,
+          false,
+          {
+            fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+            lineNumber: 163,
+            columnNumber: 7
+          },
+          this
+        ),
+        /* @__PURE__ */ jsxDEV("div", { className: "container-luxe", children: [
+          /* @__PURE__ */ jsxDEV("div", { className: "mx-auto max-w-2xl text-center", children: [
+            /* @__PURE__ */ jsxDEV(Reveal, { "aria-hidden": "true", className: "flex items-center justify-center gap-3", children: [
+              /* @__PURE__ */ jsxDEV("span", { className: "h-px w-10 bg-gradient-to-l from-gold/70 to-transparent" }, void 0, false, {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 171,
+                columnNumber: 13
+              }, this),
+              /* @__PURE__ */ jsxDEV("span", { className: "h-1.5 w-1.5 rotate-45 bg-gold" }, void 0, false, {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 172,
+                columnNumber: 13
+              }, this),
+              /* @__PURE__ */ jsxDEV("span", { className: "h-px w-10 bg-gradient-to-r from-gold/70 to-transparent" }, void 0, false, {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 173,
+                columnNumber: 13
+              }, this)
+            ] }, void 0, true, {
+              fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+              lineNumber: 170,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV(
+              Reveal,
+              {
+                as: "h2",
+                id: "industries-title",
+                delay: stagger(1),
+                className: "mt-6 text-h2 font-normal text-ivory",
+                children: [
+                  title.join(" "),
+                  " ",
+                  /* @__PURE__ */ jsxDEV("em", { className: "font-normal italic text-gold-light", children: lastWord }, void 0, false, {
+                    fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                    lineNumber: 181,
+                    columnNumber: 31
+                  }, this)
+                ]
+              },
+              void 0,
+              true,
+              {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 175,
+                columnNumber: 11
+              },
+              this
+            ),
+            /* @__PURE__ */ jsxDEV(Reveal, { as: "p", delay: stagger(2), className: "mt-4 font-serif text-lg italic text-mist", children: industries.subtitle }, void 0, false, {
+              fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+              lineNumber: 183,
+              columnNumber: 11
+            }, this)
+          ] }, void 0, true, {
+            fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+            lineNumber: 169,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV(Reveal, { delay: stagger(3), children: /* @__PURE__ */ jsxDEV("ul", { className: "mt-14 grid grid-cols-2 gap-3 md:grid-cols-6 lg:flex lg:h-[34rem] lg:gap-3", children: industries.items.map(
+            (item, i) => /* @__PURE__ */ jsxDEV(
+              Panel,
+              {
+                item,
+                index: i,
+                active: i === active,
+                onActivate: () => setActive(i),
+                reduced
+              },
+              item.name,
+              false,
+              {
+                fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+                lineNumber: 191,
+                columnNumber: 13
+              },
+              this
+            )
+          ) }, void 0, false, {
+            fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+            lineNumber: 189,
+            columnNumber: 11
+          }, this) }, void 0, false, {
+            fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+            lineNumber: 188,
+            columnNumber: 9
+          }, this)
+        ] }, void 0, true, {
+          fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+          lineNumber: 168,
+          columnNumber: 7
+        }, this)
+      ]
+    },
+    void 0,
+    true,
+    {
+      fileName: "D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx",
+      lineNumber: 158,
+      columnNumber: 5
+    },
+    this
+  );
+}
+_s(Industries, "pVplbYeZZNpfzg2Brp9cVYgm16Q=", false, function() {
+  return [useReducedMotion];
+});
+_c2 = Industries;
+var _c, _c2;
+$RefreshReg$(_c, "Panel");
+$RefreshReg$(_c2, "Industries");
+if (import.meta.hot && !inWebWorker) {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+if (import.meta.hot && !inWebWorker) {
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/BUSINESS/ALRA DIGITAL/PROJECT/PRO-STAFF/src/components/Industries.jsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+
+//# sourceMappingURL=data:application/json;base64,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QUFDLFFBQUcsV0FBVSw2RUFDWEgscUJBQVcyQyxNQUFNWDtBQUFBQSxZQUFJLENBQUN0QixNQUFNa0MsTUFDM0I7QUFBQSxjQUFDO0FBQUE7QUFBQSxnQkFFQztBQUFBLGdCQUNBLE9BQU9BO0FBQUFBLGdCQUNQLFFBQVFBLE1BQU1oQztBQUFBQSxnQkFDZCxZQUFZLE1BQU15QixVQUFVTyxDQUFDO0FBQUEsZ0JBQzdCO0FBQUE7QUFBQSxjQUxLbEMsS0FBS087QUFBQUEsY0FEWjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLFlBTW1CO0FBQUEsVUFFcEIsS0FWSDtBQUFBO0FBQUE7QUFBQTtBQUFBLGlCQVdBLEtBWkY7QUFBQTtBQUFBO0FBQUE7QUFBQSxpQkFhQTtBQUFBLGFBakNGO0FBQUE7QUFBQTtBQUFBO0FBQUEsZUFrQ0E7QUFBQTtBQUFBO0FBQUEsSUE1Q0Y7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQUFBLEVBNkNBO0FBRUo7QUFBQ21CLEdBdER1QkQsWUFBVTtBQUFBLFVBQ2hCL0IsZ0JBQWdCO0FBQUE7QUFBQSxNQURWK0I7QUFBVSxJQUFBRCxJQUFBVztBQUFBLGFBQUFYLElBQUE7QUFBQSxhQUFBVyxLQUFBIiwibmFtZXMiOlsidXNlU3RhdGUiLCJBbmltYXRlUHJlc2VuY2UiLCJtb3Rpb24iLCJpbmR1c3RyaWVzIiwiUmV2ZWFsIiwiRUFTRV9MVVhFIiwic3RhZ2dlciIsInVzZVJlZHVjZWRNb3Rpb24iLCJwYWQiLCJuIiwiU3RyaW5nIiwicGFkU3RhcnQiLCJQYW5lbCIsIml0ZW0iLCJpbmRleCIsImFjdGl2ZSIsIm9uQWN0aXZhdGUiLCJyZWR1Y2VkIiwiaWNvbiIsIkljb24iLCJuYW1lIiwiaW1hZ2UiLCJyb2xlcyIsImZsZXhHcm93IiwiZHVyYXRpb24iLCJlYXNlIiwiZmxleEJhc2lzIiwibGVuZ3RoIiwiam9pbiIsIm1vYmlsZSIsInJlcGxhY2UiLCJhbHQiLCJvcGFjaXR5IiwieSIsImRlbGF5IiwibWFwIiwicm9sZSIsIl9jIiwiSW5kdXN0cmllcyIsIl9zIiwic2V0QWN0aXZlIiwidGl0bGUiLCJzcGxpdCIsImxhc3RXb3JkIiwicG9wIiwic3VidGl0bGUiLCJpdGVtcyIsImkiLCJfYzIiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsiSW5kdXN0cmllcy5qc3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgdXNlU3RhdGUgfSBmcm9tICdyZWFjdCc7XG5pbXBvcnQgeyBBbmltYXRlUHJlc2VuY2UsIG1vdGlvbiB9IGZyb20gJ2ZyYW1lci1tb3Rpb24nO1xuaW1wb3J0IHsgaW5kdXN0cmllcyB9IGZyb20gJy4uL2RhdGEvY29udGVudCc7XG5pbXBvcnQgUmV2ZWFsLCB7IEVBU0VfTFVYRSwgc3RhZ2dlciB9IGZyb20gJy4vdWkvUmV2ZWFsJztcbmltcG9ydCB1c2VSZWR1Y2VkTW90aW9uIGZyb20gJy4uL2hvb2tzL3VzZVJlZHVjZWRNb3Rpb24nO1xuXG5jb25zdCBwYWQgPSAobikgPT4gU3RyaW5nKG4pLnBhZFN0YXJ0KDIsICcwJyk7XG5cbmZ1bmN0aW9uIFBhbmVsKHsgaXRlbSwgaW5kZXgsIGFjdGl2ZSwgb25BY3RpdmF0ZSwgcmVkdWNlZCB9KSB7XG4gIGNvbnN0IHsgaWNvbjogSWNvbiwgbmFtZSwgaW1hZ2UsIHJvbGVzIH0gPSBpdGVtO1xuXG4gIHJldHVybiAoXG4gICAgPG1vdGlvbi5saVxuICAgICAgY2xhc3NOYW1lPXtgcmVsYXRpdmUgbWluLXctMCBsZzpoLWZ1bGwgJHtpbmRleCA9PT0gNCA/ICdjb2wtc3Bhbi0yJyA6ICcnfSAke2luZGV4IDwgMyA/ICdtZDpjb2wtc3Bhbi0yJyA6ICdtZDpjb2wtc3Bhbi0zJ31gfVxuICAgICAgaW5pdGlhbD17ZmFsc2V9XG4gICAgICBhbmltYXRlPXt7IGZsZXhHcm93OiBhY3RpdmUgPyAzLjQgOiAxIH19XG4gICAgICB0cmFuc2l0aW9uPXt7IGR1cmF0aW9uOiAwLjgsIGVhc2U6IEVBU0VfTFVYRSB9fVxuICAgICAgc3R5bGU9e3sgZmxleEJhc2lzOiAwIH19XG4gICAgPlxuICAgICAgPGJ1dHRvblxuICAgICAgICB0eXBlPVwiYnV0dG9uXCJcbiAgICAgICAgYXJpYS1wcmVzc2VkPXthY3RpdmV9XG4gICAgICAgIGFyaWEtbGFiZWw9e3JvbGVzPy5sZW5ndGggPyBgJHtuYW1lfTogJHtyb2xlcy5qb2luKCcsICcpfWAgOiBuYW1lfVxuICAgICAgICBvbk1vdXNlRW50ZXI9e29uQWN0aXZhdGV9XG4gICAgICAgIG9uRm9jdXM9e29uQWN0aXZhdGV9XG4gICAgICAgIG9uQ2xpY2s9e29uQWN0aXZhdGV9XG4gICAgICAgIGNsYXNzTmFtZT17YGdyb3VwIHJlbGF0aXZlIGJsb2NrIGgtZnVsbCB3LWZ1bGwgb3ZlcmZsb3ctaGlkZGVuIHJvdW5kZWQtbHV4ZSBib3JkZXIgdGV4dC1sZWZ0IHRyYW5zaXRpb24tW2JvcmRlci1jb2xvcixib3gtc2hhZG93XSBkdXJhdGlvbi03MDAgZWFzZS1sdXhlIGxnOmFzcGVjdC1hdXRvICR7XG4gICAgICAgICAgaW5kZXggPT09IDQgPyAnYXNwZWN0LVsxNi85XScgOiAnYXNwZWN0LVszLzRdJ1xuICAgICAgICB9ICR7aW5kZXggPCAzID8gJ21kOmFzcGVjdC1bMy80XScgOiAnbWQ6YXNwZWN0LVsxNi8xMF0nfSAke1xuICAgICAgICAgIGFjdGl2ZVxuICAgICAgICAgICAgPyAnYm9yZGVyLWdvbGQvNjAgc2hhZG93LVswXzMwcHhfODBweF8tMzBweF9yZ2JhKDE4NCwxNDksOTAsMC40NSldJ1xuICAgICAgICAgICAgOiAnYm9yZGVyLWl2b3J5LzEwIGhvdmVyOmJvcmRlci1nb2xkLzMwJ1xuICAgICAgICB9YH1cbiAgICAgID5cbiAgICAgICAgPHBpY3R1cmU+XG4gICAgICAgICAgPHNvdXJjZSBzcmNTZXQ9e2ltYWdlLm1vYmlsZS5yZXBsYWNlKC9cXC53ZWJwJC8sICcuYXZpZicpfSB0eXBlPVwiaW1hZ2UvYXZpZlwiIC8+XG4gICAgICAgICAgPGltZ1xuICAgICAgICAgICAgc3JjPXtpbWFnZS5tb2JpbGV9XG4gICAgICAgICAgICBhbHQ9e2ltYWdlLmFsdCB8fCBuYW1lfVxuICAgICAgICAgICAgbG9hZGluZz1cImxhenlcIlxuICAgICAgICAgICAgZGVjb2Rpbmc9XCJhc3luY1wiXG4gICAgICAgICAgICB3aWR0aD1cIjkwMFwiXG4gICAgICAgICAgICBoZWlnaHQ9XCIxMjAwXCJcbiAgICAgICAgICAgIGNsYXNzTmFtZT17YGFic29sdXRlIGluc2V0LTAgaC1mdWxsIHctZnVsbCBvYmplY3QtY292ZXIgdHJhbnNpdGlvbi1bdHJhbnNmb3JtLGZpbHRlcl0gZHVyYXRpb24tWzEuNnNdIGVhc2UtbHV4ZSAke1xuICAgICAgICAgICAgICBhY3RpdmVcbiAgICAgICAgICAgICAgICA/ICdzY2FsZS0xMDUgZ3JheXNjYWxlLTAnXG4gICAgICAgICAgICAgICAgOiAnc2NhbGUtMTAwIGdyYXlzY2FsZS1bMjAlXSBncm91cC1ob3ZlcjpzY2FsZS0xMDUgZ3JvdXAtaG92ZXI6Z3JheXNjYWxlLTAnXG4gICAgICAgICAgICB9YH1cbiAgICAgICAgICAvPlxuICAgICAgICA8L3BpY3R1cmU+XG5cbiAgICAgICAgey8qIExlZ2liaWxpdHkgZ3JhZGllbnQ6IHRyYW5zcGFyZW50IGF0IHRvcCBmb3IgY2xlYXIgaW1hZ2UgdmlzaWJpbGl0eSwgZGFyayBhdCBib3R0b20gZm9yIHRleHQgKi99XG4gICAgICAgIDxzcGFuXG4gICAgICAgICAgYXJpYS1oaWRkZW49XCJ0cnVlXCJcbiAgICAgICAgICBjbGFzc05hbWU9XCJhYnNvbHV0ZSBpbnNldC0wIGJnLWdyYWRpZW50LXRvLXQgZnJvbS1vbnl4IHZpYS1vbnl4LzI1IHRvLXRyYW5zcGFyZW50XCJcbiAgICAgICAgLz5cbiAgICAgICAgPHNwYW5cbiAgICAgICAgICBhcmlhLWhpZGRlbj1cInRydWVcIlxuICAgICAgICAgIGNsYXNzTmFtZT17YGFic29sdXRlIGluc2V0LTAgYmctZ3JhZGllbnQtdG8tdCBmcm9tLW9ueXgvODAgdG8tdHJhbnNwYXJlbnQgdHJhbnNpdGlvbi1vcGFjaXR5IGR1cmF0aW9uLTcwMCAke1xuICAgICAgICAgICAgYWN0aXZlID8gJ29wYWNpdHktMCcgOiAnb3BhY2l0eS00MCBsZzpvcGFjaXR5LTUwJ1xuICAgICAgICAgIH1gfVxuICAgICAgICAvPlxuXG4gICAgICAgIHsvKiBJbmRleCArIGdvbGQgcnVsZSAqL31cbiAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwiYWJzb2x1dGUgbGVmdC01IHRvcC01IGZsZXggaXRlbXMtY2VudGVyIGdhcC0zIGZvbnQtc2FucyB0ZXh0LW1pY3JvIGZvbnQtbWVkaXVtIHRyYWNraW5nLWJ0biB0ZXh0LWdvbGQtbGlnaHRcIj5cbiAgICAgICAgICB7cGFkKGluZGV4ICsgMSl9XG4gICAgICAgICAgPHNwYW5cbiAgICAgICAgICAgIGFyaWEtaGlkZGVuPVwidHJ1ZVwiXG4gICAgICAgICAgICBjbGFzc05hbWU9e2BoLXB4IGJnLWdvbGQgdHJhbnNpdGlvbi1hbGwgZHVyYXRpb24tNzAwIGVhc2UtbHV4ZSAke2FjdGl2ZSA/ICd3LTEwJyA6ICd3LTQnfWB9XG4gICAgICAgICAgLz5cbiAgICAgICAgPC9zcGFuPlxuXG4gICAgICAgIHsvKiBDb2xsYXBzZWQgZGVza3RvcCBsYWJlbDogdmVydGljYWwgbmFtZSAqL31cbiAgICAgICAgPHNwYW5cbiAgICAgICAgICBhcmlhLWhpZGRlbj1cInRydWVcIlxuICAgICAgICAgIGNsYXNzTmFtZT17YGFic29sdXRlIGJvdHRvbS02IGxlZnQtMS8yIGhpZGRlbiAtdHJhbnNsYXRlLXgtMS8yIHdoaXRlc3BhY2Utbm93cmFwIGZvbnQtc2VyaWYgdGV4dC0yeGwgaXRhbGljIHRleHQtaXZvcnkvOTAgdHJhbnNpdGlvbi1vcGFjaXR5IGR1cmF0aW9uLTUwMCBbd3JpdGluZy1tb2RlOnZlcnRpY2FsLXJsXSBsZzpibG9jayAke1xuICAgICAgICAgICAgYWN0aXZlID8gJ29wYWNpdHktMCcgOiAncm90YXRlLTE4MCdcbiAgICAgICAgICB9YH1cbiAgICAgICAgPlxuICAgICAgICAgIHtuYW1lfVxuICAgICAgICA8L3NwYW4+XG5cbiAgICAgICAgey8qIE9wZW4gbGFiZWw6IGljb24gcmluZyArIG5hbWUgKGFsd2F5cyBzaG93biBvbiBzbWFsbCBzY3JlZW5zKSAqL31cbiAgICAgICAgPHNwYW5cbiAgICAgICAgICBjbGFzc05hbWU9e2BhYnNvbHV0ZSBpbnNldC14LTAgYm90dG9tLTAgcC0zLjUgc206cC01IG1kOnAtNyAke2FjdGl2ZSA/ICcnIDogJ2xnOmhpZGRlbid9YH1cbiAgICAgICAgPlxuICAgICAgICAgIDxBbmltYXRlUHJlc2VuY2UgbW9kZT1cIndhaXRcIj5cbiAgICAgICAgICAgIDxtb3Rpb24uc3BhblxuICAgICAgICAgICAgICBrZXk9e2FjdGl2ZSA/ICdvcGVuJyA6ICdjbG9zZWQnfVxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJibG9ja1wiXG4gICAgICAgICAgICAgIGluaXRpYWw9e3JlZHVjZWQgPyBmYWxzZSA6IHsgb3BhY2l0eTogMCwgeTogMTggfX1cbiAgICAgICAgICAgICAgYW5pbWF0ZT17eyBvcGFjaXR5OiAxLCB5OiAwIH19XG4gICAgICAgICAgICAgIHRyYW5zaXRpb249e3sgZHVyYXRpb246IDAuNiwgZWFzZTogRUFTRV9MVVhFLCBkZWxheTogYWN0aXZlID8gMC4yNSA6IDAgfX1cbiAgICAgICAgICAgID5cbiAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwiZmxleCBoLTkgdy05IHNtOmgtMTIgc206dy0xMiBtZDpoLTE0IG1kOnctMTQgaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHJvdW5kZWQtZnVsbCBib3JkZXIgYm9yZGVyLWdvbGQvNjAgYmctb255eC80MCB0ZXh0LWdvbGQtbGlnaHRcIj5cbiAgICAgICAgICAgICAgICA8SWNvblxuICAgICAgICAgICAgICAgICAgYXJpYS1oaWRkZW49XCJ0cnVlXCJcbiAgICAgICAgICAgICAgICAgIHN0cm9rZVdpZHRoPXsxLjI1fVxuICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwiaC00IHctNCBzbTpoLTUgc206dy01IG1kOmgtNiBtZDp3LTZcIlxuICAgICAgICAgICAgICAgIC8+XG4gICAgICAgICAgICAgIDwvc3Bhbj5cbiAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwibXQtMi41IHNtOm10LTQgYmxvY2sgZm9udC1zZXJpZiB0ZXh0LXNtIHhzOnRleHQtYmFzZSBzbTp0ZXh0LTJ4bCBtZDp0ZXh0LTN4bCBsZzp0ZXh0LTR4bCBsZWFkaW5nLXRpZ2h0IGJyZWFrLXdvcmRzIHRleHQtaXZvcnlcIj5cbiAgICAgICAgICAgICAgICB7bmFtZX1cbiAgICAgICAgICAgICAgPC9zcGFuPlxuICAgICAgICAgICAgICA8c3BhblxuICAgICAgICAgICAgICAgIGFyaWEtaGlkZGVuPVwidHJ1ZVwiXG4gICAgICAgICAgICAgICAgY2xhc3NOYW1lPVwibXQtMi41IHNtOm10LTQgYmxvY2sgaC1weCB3LTggc206dy0xNCBiZy1nb2xkLWdyYWRpZW50XCJcbiAgICAgICAgICAgICAgLz5cbiAgICAgICAgICAgICAge3JvbGVzPy5sZW5ndGggPiAwICYmIChcbiAgICAgICAgICAgICAgICA8c3BhblxuICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPXtgbXQtNCBmbGV4LXdyYXAgZ2FwLXgtNCBnYXAteS0xLjUgJHthY3RpdmUgPyAnaGlkZGVuIG1kOmZsZXgnIDogJ2hpZGRlbid9YH1cbiAgICAgICAgICAgICAgICA+XG4gICAgICAgICAgICAgICAgICB7cm9sZXMubWFwKChyb2xlKSA9PiAoXG4gICAgICAgICAgICAgICAgICAgIDxzcGFuXG4gICAgICAgICAgICAgICAgICAgICAga2V5PXtyb2xlfVxuICAgICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0yIHRleHQtbWljcm8gZm9udC1tZWRpdW0gdXBwZXJjYXNlIHRyYWNraW5nLWJ0biB0ZXh0LWl2b3J5LzgwXCJcbiAgICAgICAgICAgICAgICAgICAgPlxuICAgICAgICAgICAgICAgICAgICAgIDxzcGFuIGFyaWEtaGlkZGVuPVwidHJ1ZVwiIGNsYXNzTmFtZT1cImgtMSB3LTEgcm90YXRlLTQ1IGJnLWdvbGRcIiAvPlxuICAgICAgICAgICAgICAgICAgICAgIHtyb2xlfVxuICAgICAgICAgICAgICAgICAgICA8L3NwYW4+XG4gICAgICAgICAgICAgICAgICApKX1cbiAgICAgICAgICAgICAgICA8L3NwYW4+XG4gICAgICAgICAgICAgICl9XG4gICAgICAgICAgICA8L21vdGlvbi5zcGFuPlxuICAgICAgICAgIDwvQW5pbWF0ZVByZXNlbmNlPlxuICAgICAgICA8L3NwYW4+XG4gICAgICA8L2J1dHRvbj5cbiAgICA8L21vdGlvbi5saT5cbiAgKTtcbn1cblxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gSW5kdXN0cmllcygpIHtcbiAgY29uc3QgcmVkdWNlZCA9IHVzZVJlZHVjZWRNb3Rpb24oKTtcbiAgY29uc3QgW2FjdGl2ZSwgc2V0QWN0aXZlXSA9IHVzZVN0YXRlKDApO1xuICBjb25zdCB0aXRsZSA9IGluZHVzdHJpZXMudGl0bGUuc3BsaXQoJyAnKTtcbiAgY29uc3QgbGFzdFdvcmQgPSB0aXRsZS5wb3AoKTtcblxuICByZXR1cm4gKFxuICAgIDxzZWN0aW9uXG4gICAgICBpZD1cImluZHVzdHJpZXNcIlxuICAgICAgYXJpYS1sYWJlbGxlZGJ5PVwiaW5kdXN0cmllcy10aXRsZVwiXG4gICAgICBjbGFzc05hbWU9XCJzdXJmYWNlLWdyYWluIHJlbGF0aXZlIGlzb2xhdGUgb3ZlcmZsb3ctaGlkZGVuIGJnLW9ueXggcHktMjAgbWQ6cHktMjhcIlxuICAgID5cbiAgICAgIDxkaXZcbiAgICAgICAgYXJpYS1oaWRkZW49XCJ0cnVlXCJcbiAgICAgICAgY2xhc3NOYW1lPVwicG9pbnRlci1ldmVudHMtbm9uZSBhYnNvbHV0ZSBsZWZ0LTEvMiB0b3AtMCAtei0xMCBoLTgwIHctWzQ4cmVtXSBtYXgtdy1mdWxsIC10cmFuc2xhdGUteC0xLzIgcm91bmRlZC1mdWxsIGJnLWdvbGQvMTAgYmx1ci0zeGxcIlxuICAgICAgLz5cblxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJjb250YWluZXItbHV4ZVwiPlxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cIm14LWF1dG8gbWF4LXctMnhsIHRleHQtY2VudGVyXCI+XG4gICAgICAgICAgPFJldmVhbCBhcmlhLWhpZGRlbj1cInRydWVcIiBjbGFzc05hbWU9XCJmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBnYXAtM1wiPlxuICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwiaC1weCB3LTEwIGJnLWdyYWRpZW50LXRvLWwgZnJvbS1nb2xkLzcwIHRvLXRyYW5zcGFyZW50XCIgLz5cbiAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cImgtMS41IHctMS41IHJvdGF0ZS00NSBiZy1nb2xkXCIgLz5cbiAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cImgtcHggdy0xMCBiZy1ncmFkaWVudC10by1yIGZyb20tZ29sZC83MCB0by10cmFuc3BhcmVudFwiIC8+XG4gICAgICAgICAgPC9SZXZlYWw+XG4gICAgICAgICAgPFJldmVhbFxuICAgICAgICAgICAgYXM9XCJoMlwiXG4gICAgICAgICAgICBpZD1cImluZHVzdHJpZXMtdGl0bGVcIlxuICAgICAgICAgICAgZGVsYXk9e3N0YWdnZXIoMSl9XG4gICAgICAgICAgICBjbGFzc05hbWU9XCJtdC02IHRleHQtaDIgZm9udC1ub3JtYWwgdGV4dC1pdm9yeVwiXG4gICAgICAgICAgPlxuICAgICAgICAgICAge3RpdGxlLmpvaW4oJyAnKX0gPGVtIGNsYXNzTmFtZT1cImZvbnQtbm9ybWFsIGl0YWxpYyB0ZXh0LWdvbGQtbGlnaHRcIj57bGFzdFdvcmR9PC9lbT5cbiAgICAgICAgICA8L1JldmVhbD5cbiAgICAgICAgICA8UmV2ZWFsIGFzPVwicFwiIGRlbGF5PXtzdGFnZ2VyKDIpfSBjbGFzc05hbWU9XCJtdC00IGZvbnQtc2VyaWYgdGV4dC1sZyBpdGFsaWMgdGV4dC1taXN0XCI+XG4gICAgICAgICAgICB7aW5kdXN0cmllcy5zdWJ0aXRsZX1cbiAgICAgICAgICA8L1JldmVhbD5cbiAgICAgICAgPC9kaXY+XG5cbiAgICAgICAgPFJldmVhbCBkZWxheT17c3RhZ2dlcigzKX0+XG4gICAgICAgICAgPHVsIGNsYXNzTmFtZT1cIm10LTE0IGdyaWQgZ3JpZC1jb2xzLTIgZ2FwLTMgbWQ6Z3JpZC1jb2xzLTYgbGc6ZmxleCBsZzpoLVszNHJlbV0gbGc6Z2FwLTNcIj5cbiAgICAgICAgICAgIHtpbmR1c3RyaWVzLml0ZW1zLm1hcCgoaXRlbSwgaSkgPT4gKFxuICAgICAgICAgICAgICA8UGFuZWxcbiAgICAgICAgICAgICAgICBrZXk9e2l0ZW0ubmFtZX1cbiAgICAgICAgICAgICAgICBpdGVtPXtpdGVtfVxuICAgICAgICAgICAgICAgIGluZGV4PXtpfVxuICAgICAgICAgICAgICAgIGFjdGl2ZT17aSA9PT0gYWN0aXZlfVxuICAgICAgICAgICAgICAgIG9uQWN0aXZhdGU9eygpID0+IHNldEFjdGl2ZShpKX1cbiAgICAgICAgICAgICAgICByZWR1Y2VkPXtyZWR1Y2VkfVxuICAgICAgICAgICAgICAvPlxuICAgICAgICAgICAgKSl9XG4gICAgICAgICAgPC91bD5cbiAgICAgICAgPC9SZXZlYWw+XG4gICAgICA8L2Rpdj5cbiAgICA8L3NlY3Rpb24+XG4gICk7XG59XG4iXSwiZmlsZSI6IkQ6L0JVU0lORVNTL0FMUkEgRElHSVRBTC9QUk9KRUNUL1BSTy1TVEFGRi9zcmMvY29tcG9uZW50cy9JbmR1c3RyaWVzLmpzeCJ9

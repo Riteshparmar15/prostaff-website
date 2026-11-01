@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, ShieldCheck } from 'lucide-react';
+import { MapPin, Pause, Play, ShieldCheck } from 'lucide-react';
 import { brandPartners } from '../data/content';
 import SectionHeading from './ui/SectionHeading';
 import Reveal, { stagger } from './ui/Reveal';
@@ -21,6 +21,7 @@ function BrandCard({ brand }) {
           <img
             src={brand.logo}
             alt={`${brand.name} logo`}
+            loading="lazy"
             decoding="async"
             onError={() => setHasError(true)}
             className={`${brand.imgClass} object-contain transition-transform duration-300 ease-luxe group-hover/card:scale-105`}
@@ -47,7 +48,11 @@ function BrandCard({ brand }) {
 
 export default function BrandShowcase() {
   const reduced = useReducedMotion();
+  const [paused, setPaused] = useState(false);
   const brands = brandPartners.items;
+  const track = `flex shrink-0 items-center gap-6 pr-6 ${reduced ? '' : 'animate-marquee'} ${
+    paused ? '[animation-play-state:paused]' : 'group-hover:[animation-play-state:paused]'
+  }`;
 
   return (
     <section
@@ -106,29 +111,37 @@ export default function BrandShowcase() {
         {/* Dual-track continuous seamless loop */}
         <div className="group flex w-max">
           {/* Track 1 */}
-          <div
-            className={`flex shrink-0 items-center gap-6 pr-6 ${
-              reduced ? '' : 'animate-marquee'
-            } group-hover:[animation-play-state:paused]`}
-          >
+          <div className={track}>
             {brands.map((brand) => (
               <BrandCard key={`t1-${brand.id}`} brand={brand} />
             ))}
           </div>
 
           {/* Track 2 (exact duplicate track for infinite seamless wrapping) */}
-          <div
-            aria-hidden="true"
-            className={`flex shrink-0 items-center gap-6 pr-6 ${
-              reduced ? '' : 'animate-marquee'
-            } group-hover:[animation-play-state:paused]`}
-          >
+          <div aria-hidden="true" className={track}>
             {brands.map((brand) => (
               <BrandCard key={`t2-${brand.id}`} brand={brand} />
             ))}
           </div>
         </div>
       </div>
+
+      {!reduced && (
+        <div className="container-luxe mt-2 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            aria-label={paused ? 'Play brand logos' : 'Pause brand logos'}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-white/80 text-gold-deep transition-colors duration-300 hover:border-gold hover:bg-gold/10"
+          >
+            {paused ? (
+              <Play aria-hidden="true" strokeWidth={1.5} className="h-3.5 w-3.5 translate-x-px" />
+            ) : (
+              <Pause aria-hidden="true" strokeWidth={1.5} className="h-3.5 w-3.5" />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* ------------------------------------------------------------------ */}
       {/* Pan-India & International Cities Footprint Bar                     */}

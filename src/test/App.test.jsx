@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { company, contact, industries, testimonials } from '../data/content';
@@ -90,8 +90,35 @@ describe('contact form', () => {
       expect.objectContaining({ method: 'POST' }),
     );
     const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-    expect(body).toMatchObject({ name: 'Asha Mehta', _replyto: 'asha@example.com' });
+    expect(body).toMatchObject({ 'Full Name': 'Asha Mehta', _replyto: 'asha@example.com' });
     expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
+  });
+
+  it('shows the failure message when the endpoint reports success "false"', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('{"success":"false","message":"This form needs Activation."}', { status: 200 }),
+    );
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(<App />);
+    await fillValid(user);
+    await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
+    expect(await within(form()).findByText(contact.form.failure)).toBeInTheDocument();
+  });
+
+  it('sends only one request when submitted twice in quick succession', async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockReturnValue(new Promise(() => {}));
+    render(<App />);
+    await fillValid(user);
+    fireEvent.submit(form());
+    fireEvent.submit(form());
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the form within narrow screens', () => {
+    render(<App />);
+    expect(form().closest('.grid')).toHaveClass('grid-cols-1');
   });
 
   it('silently drops submissions that fill the honeypot', async () => {
@@ -102,6 +129,85 @@ describe('contact form', () => {
     container.querySelector('input[name="company_website"]').value = 'spam';
     await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('contact form with Google Sheets enabled', () => {
+  const SHEETS = 'https://script.google.com/macros/s/test/exec';
+  const form = () => screen.getByRole('form', { name: 'Contact form' });
+  const ok = (body) => () => Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+
+  beforeEach(() => {
+    contact.form.sheetsEndpoint = SHEETS;
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    contact.form.sheetsEndpoint = null;
+  });
+
+  const mockChannels = ({ formsubmit, sheets }) =>
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => (url === SHEETS ? sheets() : formsubmit()));
+
+  const submitValid = async () => {
+    const user = userEvent.setup({ delay: null });
+    render(<App />);
+    const f = within(form());
+    await user.type(f.getByLabelText(/First Name/), 'Asha');
+    await user.type(f.getByLabelText(/Last Name/), 'Mehta');
+    await user.type(f.getByLabelText(/Email Address/), 'asha@example.com');
+    await user.selectOptions(f.getByLabelText(/I am a/), 'Other');
+    await user.type(f.getByLabelText(/Message/), 'Need staff.');
+    await user.click(f.getByRole('button', { name: contact.form.submit }));
+  };
+
+  it('sends every enquiry to both FormSubmit and the Sheet', async () => {
+    const fetchSpy = mockChannels({ formsubmit: ok({ success: 'true' }), sheets: ok({ ok: true }) });
+    await submitValid();
+    expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+    const [, sheetsInit] = fetchSpy.mock.calls.find(([url]) => url === SHEETS);
+    expect(sheetsInit.headers['Content-Type']).toBe('text/plain;charset=utf-8');
+    expect(JSON.parse(sheetsInit.body)).toMatchObject({
+      name: 'Asha Mehta',
+      email: 'asha@example.com',
+      phone: 'Not provided',
+      profile: 'Other',
+      message: 'Need staff.',
+      company_website: '',
+    });
+  });
+
+  it('still confirms when only the Sheet saves it', async () => {
+    mockChannels({ formsubmit: () => Promise.reject(new TypeError('Failed to fetch')), sheets: ok({ ok: true }) });
+    await submitValid();
+    expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
+  });
+
+  it('still confirms when only FormSubmit sends it', async () => {
+    mockChannels({ formsubmit: ok({ success: 'true' }), sheets: ok({ ok: false, error: 'save-failed' }) });
+    await submitValid();
+    expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
+  });
+
+  it('shows the failure message when both channels fail', async () => {
+    mockChannels({
+      formsubmit: ok({ success: 'false', message: 'This form needs Activation.' }),
+      sheets: ok({ ok: false, error: 'rate-limited' }),
+    });
+    await submitValid();
+    expect(await within(form()).findByText(contact.form.failure)).toBeInTheDocument();
+    expect(within(form()).queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('treats a non-JSON Sheet reply as a failure', async () => {
+    mockChannels({
+      formsubmit: () => Promise.reject(new TypeError('Failed to fetch')),
+      sheets: () => Promise.resolve(new Response('<html>Sign in</html>', { status: 200 })),
+    });
+    await submitValid();
+    expect(await within(form()).findByText(contact.form.failure)).toBeInTheDocument();
   });
 });
 

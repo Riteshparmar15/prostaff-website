@@ -9,7 +9,7 @@ import {
   useTransform,
 } from 'framer-motion';
 import { Pause, Play } from 'lucide-react';
-import { hero } from '../data/content';
+import { asset, hero } from '../data/content';
 import Button from './ui/Button';
 import Reveal, { EASE_LUXE, stagger } from './ui/Reveal';
 import useReducedMotion from '../hooks/useReducedMotion';
@@ -199,10 +199,10 @@ export default function Hero() {
                 decoding="async"
                 onError={(e) => {
                   const fallbacks = [
-                    '/images/hero/tailored-desktop-1920.webp',
-                    '/images/hero/interview-desktop-1920.webp',
-                    '/images/hero/partnership-desktop-1920.webp',
-                    '/images/hero/executive-desktop-1920.webp',
+                    asset('images/hero/tailored-desktop-1920.webp'),
+                    asset('images/hero/interview-desktop-1920.webp'),
+                    asset('images/hero/partnership-desktop-1920.webp'),
+                    asset('images/hero/executive-desktop-1920.webp'),
                   ];
                   const fallback = fallbacks[active];
                   if (fallback && !e.currentTarget.src.endsWith(fallback)) {

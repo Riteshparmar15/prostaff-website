@@ -7,29 +7,6 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 const FILE_OUT_DIR = 'dist-file';
 
 /**
- * Dev-only mock for POST /api/contact so the contact form can be exercised
- * locally. Replace with a real endpoint (serverless function, CRM webhook…)
- * in production.
- */
-const mockContactApi = () => ({
-  name: 'mock-contact-api',
-  configureServer(server) {
-    server.middlewares.use('/api/contact', (req, res, next) => {
-      if (req.method !== 'POST') return next();
-      let body = '';
-      req.on('data', (chunk) => (body += chunk));
-      req.on('end', () => {
-        console.log('[mock /api/contact]', body);
-        setTimeout(() => {
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true }));
-        }, 900);
-      });
-    });
-  },
-});
-
-/**
  * `npm run build:file` output must open straight from disk (file://), where a
  * leading "/" means the drive root, so site paths are rewritten as relative.
  */
@@ -66,8 +43,28 @@ const stripFileRedirect = () => ({
     html.replace(/\s*<!-- file-open-redirect:start -->[\s\S]*?<!-- file-open-redirect:end -->/, ''),
 });
 
-export default defineConfig(({ command, mode }) => {
-  const base = command === 'serve' ? '/' : (mode === 'file' ? './' : '/prostaff-website/');
+/** 404.html is served at any missing URL depth, so its links need the absolute base path. */
+const notFoundPage = (base) => {
+  let outDir;
+  return {
+    name: 'not-found-page',
+    apply: 'build',
+    configResolved: (config) => {
+      outDir = config.build.outDir;
+    },
+    async closeBundle() {
+      const path = resolve(outDir, '404.html');
+      const html = await readFile(path, 'utf8').catch(() => null);
+      if (html) await writeFile(path, html.replaceAll('%BASE%', base));
+    },
+  };
+};
+
+/** Netlify and custom domains serve from the root; GitHub Pages serves this repo from a sub-folder. */
+const BASES = { file: './', ghpages: '/prostaff-website/' };
+
+export default defineConfig(({ mode }) => {
+  const base = BASES[mode] ?? '/';
   return {
     server: {
       host: true,
@@ -75,8 +72,8 @@ export default defineConfig(({ command, mode }) => {
     },
     plugins: [
       react(),
-      mockContactApi(),
       stripFileRedirect(),
+      notFoundPage(base),
       {
         name: 'fix-html-asset-paths',
         transformIndexHtml: {
@@ -96,6 +93,7 @@ export default defineConfig(({ command, mode }) => {
     ...(mode === 'file' && { build: { outDir: FILE_OUT_DIR } }),
     test: {
       environment: 'jsdom',
+      include: ['src/**/*.test.{js,jsx}'],
       setupFiles: ['./src/test/setup.js'],
       css: false,
     },
