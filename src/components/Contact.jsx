@@ -103,7 +103,7 @@ async function sendViaFormEndpoint(enquiry) {
   // A non-JSON 200 (proxy, captive portal or challenge page) is not proof of delivery.
   const data = await res.json().catch(() => null);
   if (!res.ok || !data || String(data.success) === 'false') {
-    throw new Error(data.message || `Request failed: ${res.status}`);
+    throw new Error(data?.message || `Request failed: ${res.status}`);
   }
 }
 
