@@ -1,6 +1,6 @@
 ﻿# Bug Report — Prostaff Solution website
 
-Test date: 31 October 2026, updated 1 November 2026. Test case IDs refer to `TEST_CASES.md`.
+Test date: 31 October 2026, updated 1 and 2 November 2026. Test case IDs refer to `TEST_CASES.md`. On 2 November the site went live at `https://prostaffconsulting.com` (Netlify), and the whole suite was re-run against it.
 
 **Priority**
 - **P0**: site down, data loss or security breach
@@ -26,17 +26,19 @@ Test date: 31 October 2026, updated 1 November 2026. Test case IDs refer to `TES
 | BUG-007 | P3 | Fixed | Logo link's visible text was not part of its accessible name |
 | BUG-008 | P2 | Fixed | Brand logo marquee could not be paused by keyboard or touch users |
 | BUG-009 | P3 | Fixed | Open mobile menu did not contain keyboard focus |
-| BUG-010 | P1 | Needs confirmation | Canonical, social and sitemap URLs point to a domain that does not load |
+| BUG-010 | P1 | Fixed (2 Nov) | Canonical, social and sitemap URLs pointed to a domain that did not load |
 | BUG-011 | P1 | Needs confirmation | Legal entity name conflicts across the site |
-| BUG-012 | P1 | Needs confirmation | Enquiry inbox and real delivery unverified |
+| BUG-012 | P2 | Mostly resolved; inbox choice needs confirmation | Enquiry inbox and real delivery |
 | BUG-013 | P2 | Needs confirmation | Permission and evidence for brand logos, statistics and testimonials |
 | BUG-014 | P3 | Fixed | Dev-dependency security advisories |
 | BUG-015 | P3 | Fixed (Unsplash part needs confirmation) | Oversized images and remote hero photos |
 | BUG-016 | P3 | Fixed (wording needs approval) | Privacy policy omitted the form processor; legal pages used Google Fonts |
-| BUG-017 | P3 | Partly fixed | Hosting hardening observations |
+| BUG-017 | P3 | Partly fixed | Hosting hardening observations (headers now confirmed live; no CSP) |
 | BUG-018 | P3 | Needs confirmation | LinkedIn URL spelling |
 | BUG-019 | P3 | Open (needs design approval) | Mobile Lighthouse performance 77: hero headline entrance delays the largest paint |
 | BUG-020 | P2 | Fixed | Contact form could hang on "Sending…" or confirm an enquiry that was never accepted |
+| BUG-021 | P3 | Fixed (2 Nov) | Footer "Privacy Policy" and "Terms of Use" links were 15px tall (WCAG 2.2 SC 2.5.8 asks for 24px) |
+| BUG-022 | P3 | Fixed (2 Nov) | An unexpected reply from the form service threw a confusing error instead of the normal failure message |
 
 ---
 
@@ -137,10 +139,11 @@ axe also reports `label-content-name-mismatch` on the five Industry cards. Each 
 
 ### BUG-017: Hosting hardening observations (P3), partly fixed
 - **Fixed:** added a branded `public/404.html`. GitHub Pages serves it for any missing URL, and a build step fills in its absolute base path.
+- **2 Nov update:** the site is now on Netlify, so `public/_headers` applies. The live responses carry HSTS, `nosniff`, `X-Frame-Options`, `Referrer-Policy` and `Permissions-Policy`, and hashed assets are cached as immutable (TC-LIVE-005, TC-LIVE-010).
 - **Still open:**
-  - GitHub Pages ignores `vercel.json` and `public/_headers`, so those security and cache headers only apply on Vercel, Netlify or Cloudflare. There is no Content-Security-Policy.
-  - A non-JSON 200 response from the form endpoint counted as success. Fixed under BUG-020.
-  - Footer legal links are 14px tall.
+  - There is no Content-Security-Policy. It is a hardening step, not a defect, and it needs testing against the inline JSON-LD and the Unsplash and FormSubmit hosts before it is switched on.
+  - Brand-strip captions on the home page use 9–10px text (for example "LUXURY WATCHES"). Readable text is normally 12px or more, but changing it alters the design, so it needs design approval.
+  - A non-JSON 200 response from the form endpoint counted as success, and the footer legal links were 14px tall: fixed under BUG-020 and BUG-021.
 
 ### BUG-019: Mobile Lighthouse performance (P3, needs design approval)
 - **Test:** TC-PERF-004
@@ -148,6 +151,7 @@ axe also reports `label-content-name-mismatch` on the five Industry cards. Each 
 - Desktop: performance 97; others 100. LCP 0.9 s.
 - The largest element on mobile is the hero headline, and its entrance animation delays when it is painted. Showing the headline without the animated reveal would raise the score but changes the design.
 - Reports are saved in `lighthouse/` (HTML and JSON, git-ignored).
+- **2 Nov, live URL (Lighthouse 12.8.2, lab data):** mobile performance 85 (FCP 2.7 s, LCP 3.4 s, TBT 0 ms, CLS 0); desktop 97 (LCP 0.8 s, CLS 0.005). Accessibility, best practices and SEO are 100 on both. The mobile LCP of 3.4 s is above the 2.5 s target, and the cause is unchanged, so the item stays open pending design approval.
 
 ### BUG-020: Contact form could hang or confirm an unaccepted enquiry (P2), fixed 1 November
 - **Tests:** TC-FORM-017, TC-FORM-018
@@ -157,16 +161,41 @@ axe also reports `label-content-name-mismatch` on the five Industry cards. Each 
 - **Fix:** every form request now times out after 15 seconds, and only a JSON reply that confirms success counts. Both cases show the failure message, keep the visitor's input and re-enable the button.
 - **Regression tests:** two new e2e tests, passing in all six browser setups.
 
+### BUG-021: Footer legal links too small to tap (P3, WCAG 2.2 SC 2.5.8), fixed 2 November
+- **Tests:** TC-LIVE-016 (found by the live audit, which measured link boxes at 390px)
+- **Steps:** open the live site at any width and measure the footer links "Privacy Policy" and "Terms of Use".
+- **Actual:** each was 15px tall. Standalone links should be at least 24 × 24px. The "Privacy Policy" link inside the form's consent sentence is exempt because it sits in running text, and it was left alone.
+- **Cause:** the links were plain inline text at 12px.
+- **Fix:** `src/components/Footer.jsx` gives them `inline-flex min-h-[24px] items-center`. The text, colour and spacing look the same.
+- **Regression tests:** two new tests in `e2e/layout-a11y.spec.js`: a size check on both links, and an axe `wcag22aa` scan. Both pass on desktop and mobile, locally and on the live site.
+
+### BUG-022: Unexpected form reply produced a confusing error (P3), fixed 2 November
+- **Tests:** TC-FORM-017
+- In `src/components/Contact.jsx`, the form-endpoint error path read `data.message` when `data` could be `null` (a non-JSON reply), which threw "Cannot read properties of null" instead of the intended message. The visitor still saw the normal failure alert, but the logged error was wrong.
+- **Fix:** `data?.message`. Existing tests for the non-JSON reply still pass.
+
+---
+
+## Resolved or mostly resolved after going live
+
+### BUG-010: Site URLs pointed to a domain that did not load (P1), fixed 2 November
+- **Tests:** TC-SEO-002, TC-PROD-002, TC-LIVE-001 to TC-LIVE-003, TC-LIVE-008, TC-LIVE-009
+- **Before:** `index.html` (canonical, `og:url`, `og:image`, JSON-LD), `robots.txt` and `sitemap.xml` used `https://www.prostaffsolution.com/`, a domain that failed HTTPS, and nothing was deployed.
+- **Fix:** the owner's domain is `prostaffconsulting.com`. The URLs were changed to `https://prostaffconsulting.com/` (the bare domain is Netlify's primary; `www` redirects to it), the site was deployed on Netlify, GoDaddy DNS was pointed at it, and a Let's Encrypt certificate was issued.
+- **Verified live:** HTTP and `www` redirect correctly, the certificate is valid to 2027-01-30, TLS 1.2 and 1.3 only, every sitemap URL returns 200.
+- **Note:** GitHub Pages no longer serves the domain. The old `gh-pages` branch was deleted from GitHub at the owner's request.
+
+### BUG-012: Enquiry inbox and delivery (now P2)
+- **Tests:** TC-FORM-014, TC-FORM-016, TC-LIVE-018 (pass); TC-FORM-023 (blocked)
+- **Resolved:** FormSubmit is activated for `ritesh.parmar1599@gmail.com`, a test email arrived in that inbox (the owner's screenshot, 2 Nov 00:13), and the live form's request is accepted by FormSubmit with all six fields in the payload.
+- **Still needs the owner:**
+  - Confirm that this personal inbox is the one that should receive enquiries. The public business email on the site is `adarsh.dubeyenterprises@gmail.com`; if the business inbox should receive them, activate FormSubmit for that address and change `company.enquiryInbox`.
+  - The free FormSubmit emails include a "Sponsor" advertisement block (visible in the owner's screenshot). Removing it likely needs a paid FormSubmit plan or the EmailJS route (`.env.example` has the three keys); this has not been verified.
+  - Optionally deploy the Google Sheets script and send one test enquiry (TC-FORM-023).
+
 ---
 
 ## Needs business-owner confirmation
-
-### BUG-010: Site URLs point to a domain that does not load (P1)
-- **Tests:** TC-SEO-002, TC-PROD-002
-- `index.html` (canonical, `og:url`, `og:image`, JSON-LD), `robots.txt` and `sitemap.xml` all use `https://www.prostaffsolution.com/`. During testing that domain failed the HTTPS (TLS) connection.
-- The deploy script publishes to GitHub Pages under `/prostaff-website/`, which currently returns 404 because the site is not deployed.
-- If the site goes live on GitHub Pages as configured, search engines are told the real page is on a domain that does not work, and shared links show no preview image.
-- **Owner decision needed:** the final public URL. Then either connect the custom domain (DNS, HTTPS and a `CNAME` file, which also means changing the `/prostaff-website/` base to `/`) or update these URLs to the GitHub Pages address.
 
 ### BUG-011: Legal entity name conflict (P1)
 - **Test:** TC-CNT-003
@@ -174,16 +203,6 @@ axe also reports `label-content-name-mismatch` on the five Industry cards. Each 
 - The About section and footer say Prostaff "is not a separate legal entity" and is "A Division of Dubey Enterprises".
 - The LinkedIn URL slug includes "private-limited".
 - The privacy policy and terms should name the actual legal entity. **Owner or legal decision needed.**
-
-### BUG-012: Enquiry inbox and delivery (P1)
-- **Tests:** TC-FORM-014 (pass), TC-FORM-016 and TC-FORM-023 (blocked)
-- With no EmailJS keys configured, enquiries go to FormSubmit, addressed to `company.enquiryInbox` in `src/data/content.js`. That is a personal Gmail address, different from the public business email shown on the site.
-- **1 November:** at your request, three real test enquiries were sent: one in the first session and two on 1 November. The second 1 November send was recorded: FormSubmit answered HTTP 200 `{"success":"true","message":"The form was submitted successfully."}`, which means the inbox is activated. Arrival in the inbox has **not** been confirmed by the inbox owner.
-- The form can now also save each enquiry to the owner's Google Sheet (`google-apps-script/Code.gs`). This is not deployed yet.
-- **Owner action:**
-  - Confirm which inbox should receive enquiries. If it changes, activate FormSubmit for the new address.
-  - Check that the test enquiries arrived.
-  - Optionally deploy the Google Sheets script and send one test enquiry.
 
 ### BUG-013: Brand logos, statistics and testimonials (P2)
 - **Test:** TC-CNT-004

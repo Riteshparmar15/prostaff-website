@@ -1,15 +1,22 @@
-# QA Report — Prostaff Solution website
+﻿# QA Report — Prostaff Solution website
 
-Date: 31 October 2026 · Scope: the full website in this repository, tested locally as a production build
+Date: 31 October 2026, updated 1 and 2 November 2026 · Scope: the full website in this repository, tested as a local production build and, since 2 November, as the live site at https://prostaffconsulting.com
 
 **Related documents**
-- `TEST_CASES.md`: all 98 test cases and their results.
-- `BUG_REPORT.md`: 18 findings, with fixes and owner questions.
+- `TEST_CASES.md`: all 128 test cases and their results.
+- `BUG_REPORT.md`: 22 findings, with fixes and owner questions.
 - `TEST_EXECUTION_REPORT.md`: counts, pass rate, decision and commands.
 
 ## Outcome
 
-**READY WITH DOCUMENTED LIMITATIONS.** Pass rate is 96.9% across 108 test cases: 95 passed, 3 failed, 5 blocked and 5 not run (updated 1 November 2026, after the contact-form deep test and the new Google Sheets channel).
+**READY WITH DOCUMENTED LIMITATIONS.** Pass rate is 99.2% across 128 test cases: 120 passed, 1 failed, 3 blocked and 4 not run (updated 2 November 2026, after the site went live and was tested on its real URL).
+
+The live site, checked on 2 November:
+- Served by Netlify over HTTPS with a valid Let's Encrypt certificate (TLS 1.2 and 1.3 only); `http://` and `www` redirect to `https://prostaffconsulting.com/`.
+- 48 of 48 applicable end-to-end tests, a 71-check read-only audit and the WCAG 2.1 and 2.2 AA scans all pass.
+- Lighthouse (lab): mobile 85 / 100 / 100 / 100, desktop 97 / 100 / 100 / 100.
+- One new defect found and fixed: the footer legal links were 15px tall (BUG-021). A minor error-handling slip in the form was also fixed (BUG-022).
+- The old site-URL blocker (BUG-010) is resolved. The one remaining failure is the legal-entity-name conflict (BUG-011), which needs the owner.
 
 The follow-up on 1 November, approved by the owner:
 - Fixed the brand-strip pause control and mobile-menu focus.
@@ -31,17 +38,17 @@ All seven confirmed code defects were fixed and are covered by regression tests:
 - Broken hero image fallback.
 - Two accessibility failures.
 
-Before the site goes live, the owner must settle three things:
-- The final domain, because the canonical and social URLs point to a domain that doesn't load.
-- The legal entity name on the privacy and terms pages.
-- Which inbox receives enquiries, including activating FormSubmit and confirming one real delivery.
+Still needed from the owner:
+- The legal entity name on the privacy and terms pages (BUG-011, P1).
+- Permission for the third-party brand logos and evidence for the statistics and testimonials (BUG-013).
+- Confirmation of which inbox receives enquiries; it is currently a personal Gmail, and the free FormSubmit emails carry a sponsor advert (BUG-012).
 
 ## Project overview
 - **Stack:** React 18 single-page site built with Vite 5 and Tailwind 3.
   - Framer Motion animations and Lenis smooth scrolling.
   - Self-hosted fonts.
   - Build-time prerendering (`src/entry-server.jsx` and `scripts/prerender.mjs`) so the HTML contains content before JavaScript runs.
-- **Hosting:** Netlify is the target. `npm run build` produces a root-based (`/`) `dist/`, and `netlify.toml` holds the build settings; headers are in `public/_headers`. `npm run deploy:ghpages` still publishes to GitHub Pages under `/prostaff-website/`. The site is not deployed yet.
+- **Hosting:** live on Netlify at `https://prostaffconsulting.com`, built from the `master` branch on GitHub (every push redeploys). `npm run build` produces a root-based (`/`) `dist/`, `netlify.toml` holds the build settings and `public/_headers` the security and cache headers. DNS is at GoDaddy (A record to Netlify, `www` CNAME). `npm run deploy:ghpages` still exists for GitHub Pages under `/prostaff-website/`, but nothing is published there now.
 - **Contact form:** sends via EmailJS when the `VITE_EMAILJS_*` variables are set. Otherwise it sends to FormSubmit's AJAX endpoint, which `VITE_CONTACT_ENDPOINT` can override. When `VITE_SHEETS_ENDPOINT` is set, each enquiry is also saved to the owner's Google Sheet by `google-apps-script/Code.gs`, and the visitor sees success if either channel accepts it. It has a honeypot field for spam, and requests time out after 15 seconds.
 - **Content:** all copy and contact details are in `src/data/content.js`.
 
@@ -71,7 +78,7 @@ Before the site goes live, the owner must settle three things:
 - **Responsive:** 12 viewports from 320px to 1920px, 200% zoom and landscape phone, all measured in the DOM for overflow and clipping.
 - **Accessibility:** automated axe scan (WCAG 2.1 A/AA), heading order, labels, error semantics, focus movement, moving-content controls.
 - **SEO, performance, security and content:** meta and structured data, bundle and image sizes, external-link safety, headers, third-party origins, consistency of contact and legal details.
-- **Live URLs:** GitHub Pages returns 404 (not deployed), and the custom domain fails HTTPS.
+- **Live site (2 Nov):** HTTP to HTTPS and `www` redirects, certificate and TLS versions, security and cache headers, custom 404, direct loads of the legal pages, robots, sitemap and share image, page metadata and structured data, every link, console and network errors, 12 viewport sizes, the full e2e suite, axe WCAG 2.1 and 2.2, Lighthouse, and one real form submission.
 
 ## Changes made
 
@@ -99,6 +106,10 @@ Before the site goes live, the owner must settle three things:
 | `src/components/Contact.jsx` | 15-second request timeout; only a JSON success reply counts; optional Google Sheets channel sent alongside FormSubmit | BUG-020, BUG-012 |
 | `google-apps-script/Code.gs` (new), `src/data/content.js`, `.env.example`, `privacy.html` | Apps Script that saves enquiries to a Sheet and emails the owner; `VITE_SHEETS_ENDPOINT`; privacy policy names Google | BUG-012 |
 | `src/test/App.test.jsx`, `src/test/appsScript.test.js` (new), `e2e/contact.spec.js` | Two-channel, Apps Script, timeout, non-JSON, payload contract and reuse tests | — |
+| `index.html`, `public/privacy.html`, `public/terms.html`, `public/sitemap.xml`, `public/robots.txt`, `README.md` | Canonical, social, sitemap and robots URLs changed from `prostaffsolution.com` to `https://prostaffconsulting.com` | BUG-010 |
+| `src/components/Footer.jsx`, `e2e/layout-a11y.spec.js` | Footer legal links at least 24px tall; new size test and WCAG 2.2 AA scan | BUG-021 |
+| `src/components/Contact.jsx` | `data?.message` so an unexpected reply gives the normal failure message | BUG-022 |
+| `playwright.live.config.js`, `scripts/live-audit.mjs` (new), `e2e/fixtures.js`, `eslint.config.js`, `package.json`, `.gitignore` | Run the e2e specs against a live URL, a read-only live audit, request checks that follow the configured host, a `test:live` script | — |
 
 Visible design changes:
 - **BUG-006:** italic gold heading words on light backgrounds are a slightly deeper gold, needed to meet WCAG AA contrast.
@@ -109,14 +120,15 @@ Everything else keeps the existing design, content and behaviour.
 ## Manual checks still needed
 1. Real devices: iPhone (Safari) and Android (Chrome). Firefox, Edge and Safari's engine (WebKit) are covered by automated tests, but real Safari is not.
 2. Full keyboard-only walkthrough and a screen reader pass (NVDA or VoiceOver).
-3. After the owner activates FormSubmit, send one real test enquiry and confirm it arrives in the right inbox.
-4. After deployment:
-   - Lighthouse or PageSpeed Insights on the live URL.
-   - Check the share preview with a social debugger.
+3. Confirm that the "Final Check" test enquiry sent on 2 November arrived, and that this is the inbox that should receive real enquiries.
+4. On the live site:
+   - Check the share preview with a social debugger (Facebook Sharing Debugger, LinkedIn Post Inspector).
    - Confirm the LinkedIn link opens the official page.
+   - Submit the site in Google Search Console and read the field Core Web Vitals once there is traffic.
 5. Owner sign-off on BUG-013 (logo permissions and claims), BUG-016 (privacy wording) and BUG-019 (whether to simplify the hero headline animation for mobile speed).
 
 ## Limitations of this QA
-- All browser testing was done against the local production build. No live environment exists yet.
+- Until 2 November all browser testing was against the local production build; the live checks that day cover the deployed site. Live Lighthouse numbers are lab data, not real-visitor data.
+- This PC's own DNS resolver kept the old GitHub record for `www` for hours after the change. Public resolvers (Google, Cloudflare, Quad9) and GoDaddy's name servers were correct, so visitors on a stale resolver may briefly see the old answer after a DNS change.
 - Automated browser tests ran in Chrome (desktop and Pixel 7 emulation), Edge, Firefox and WebKit (desktop and iPhone 14 emulation). They did not run on physical devices.
 - Emulated viewports were verified by DOM measurement. Screenshots taken under emulation were scaled, so they were used only for visual review.

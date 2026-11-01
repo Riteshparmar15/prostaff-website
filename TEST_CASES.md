@@ -1,6 +1,6 @@
 ﻿# Test Cases — Prostaff Solution website
 
-Test date: 31 October 2026, updated 1 November 2026 · Build under test: local production build (`npm run build`, served by `vite preview` at `/prostaff-website/`)
+Test date: 31 October 2026, updated 1 and 2 November 2026 · Builds under test: the local production build (`npm run build`, served by `vite preview`) and, since 2 November, the live site `https://prostaffconsulting.com` on Netlify (section "Live site" at the end)
 
 **Method key**
 - **U**: Vitest unit or integration test (`npm test`)
@@ -8,6 +8,7 @@ Test date: 31 October 2026, updated 1 November 2026 · Build under test: local p
 - **B**: interactive browser session, driving the page with DevTools Protocol scripts and measuring the DOM
 - **C**: command line or HTTP check
 - **R**: code or content review
+- **L**: live-site check against `https://prostaffconsulting.com`: `npx playwright test --config playwright.live.config.js` (e2e, form requests still mocked), `node scripts/live-audit.mjs` (read-only audit), Lighthouse 12.8.2 and a TLS handshake probe
 
 **Status** is the result after fixes and regression. "Fixed" means the test failed at first and passed after the fix shown.
 
@@ -91,7 +92,7 @@ Test date: 31 October 2026, updated 1 November 2026 · Build under test: local p
 | TC-FORM-013 | Enter key | B | Submits once | PASS | |
 | TC-FORM-014 | Live FormSubmit acceptance | B | Real request accepted, inbox activated | PASS | 1 Nov: HTTP 200 `{"success":"true"}` in 1.3 s; Unicode and HTML characters intact; UI confirmed and reset |
 | TC-FORM-015 | EmailJS path | — | Sends via EmailJS when configured | NOT RUN | EmailJS not configured |
-| TC-FORM-016 | Inbox arrival | — | Test enquiries appear in the enquiry inbox | BLOCKED | Inbox owner must check `company.enquiryInbox` (BUG-012) |
+| TC-FORM-016 | Inbox arrival | L | Test enquiries appear in the enquiry inbox | PASS | 2 Nov: the owner's screenshot shows the FormSubmit email "Prostaff website - form activation test" in the inbox (sent 00:13). A second send from the live form is TC-LIVE-018 |
 | TC-FORM-017 | Non-JSON 200 reply | E/U | Failure shown, not success; input kept | PASS | Fixed: BUG-020 |
 | TC-FORM-018 | Request never answers | E | Fails after 15 s, button re-enabled, input kept | PASS | Fixed: BUG-020 |
 | TC-FORM-019 | FormSubmit payload contract | E | Exact fields, `_subject`, `_replyto`, `_template`, `_captcha`, JSON Accept header | PASS | |
@@ -140,7 +141,7 @@ Test date: 31 October 2026, updated 1 November 2026 · Build under test: local p
 | ID | Test | Method | Expected | Status | Notes |
 |---|---|---|---|---|---|
 | TC-SEO-001 | Basic meta | R | Title, description, `lang` and viewport present | PASS | |
-| TC-SEO-002 | Canonical, OG and sitemap URLs | R/C | Match the live, working URL | FAIL | BUG-010 |
+| TC-SEO-002 | Canonical, OG and sitemap URLs | R/C/L | Match the live, working URL | PASS | Fixed: BUG-010. All use `https://prostaffconsulting.com/`; every sitemap URL returns 200 on the live site (re-tested 2 Nov) |
 | TC-SEO-003 | robots.txt | R | Allows crawling and lists the sitemap | PASS | |
 | TC-SEO-004 | JSON-LD | R | Valid; matches the visible contact details | PASS | |
 | TC-SEO-005 | OG image | C | 1200×630 file served | PASS | |
@@ -153,14 +154,14 @@ Test date: 31 October 2026, updated 1 November 2026 · Build under test: local p
 | TC-PERF-001 | Bundle size | C | Reasonable for a single page | PASS | JS 362 KB (117 KB gzip); CSS 64.5 KB (10.8 KB gzip) |
 | TC-PERF-002 | Hero image priority | R | Hero image preloaded with responsive srcset | PASS | |
 | TC-PERF-003 | Image weights | C | File sizes proportionate to dimensions | PASS | Fixed: BUG-015 |
-| TC-PERF-004 | Lighthouse | C | Scores recorded | PASS | Local build. Mobile: performance 77, others 100. Desktop: performance 97, others 100 (BUG-019). Re-run on the live URL |
+| TC-PERF-004 | Lighthouse | C/L | Scores recorded | PASS | Local build: mobile performance 77, desktop 97, others 100. Live URL (2 Nov): see TC-LIVE-017 (BUG-019) |
 
 ## Security
 
 | ID | Test | Method | Expected | Status | Notes |
 |---|---|---|---|---|---|
 | TC-SEC-001 | External links | B | `rel="noopener noreferrer"` on new-tab links | PASS | |
-| TC-SEC-002 | Security headers | R | nosniff, Referrer-Policy, X-Frame-Options, Permissions-Policy and cache rules configured | PASS | No Content-Security-Policy. Applies only on Vercel, Netlify or Cloudflare; GitHub Pages ignores them (BUG-017) |
+| TC-SEC-002 | Security headers | R/L | nosniff, Referrer-Policy, X-Frame-Options, Permissions-Policy, HSTS and cache rules configured | PASS | Confirmed on the live Netlify responses (TC-LIVE-005). No Content-Security-Policy (hardening only, BUG-017) |
 | TC-SEC-003 | Form spam protection | U | Honeypot active | PASS | |
 | TC-SEC-004 | Third-party origins | B | Only expected origins contacted | PASS | images.unsplash.com and the form endpoint |
 | TC-SEC-005 | Legal pages third-party requests | E | No third-party font requests | PASS | Fonts now self-hosted (BUG-016) |
@@ -179,7 +180,34 @@ Test date: 31 October 2026, updated 1 November 2026 · Build under test: local p
 
 | ID | Test | Method | Expected | Status | Notes |
 |---|---|---|---|---|---|
-| TC-PROD-001 | GitHub Pages URL | C | Site served | BLOCKED | Not deployed yet (404); deploying was not authorised |
-| TC-PROD-002 | Custom domain over HTTPS | C | Loads with a valid certificate | FAIL | TLS connection fails (BUG-010) |
-| TC-PROD-003 | Deploy | — | `npm run deploy` publishes | NOT RUN | Not authorised |
+| TC-PROD-001 | Live URL | C/L | Site served | PASS | 2 Nov: served by Netlify at `https://prostaffconsulting.com` (GitHub Pages is no longer used; the `gh-pages` branch was deleted) |
+| TC-PROD-002 | Custom domain over HTTPS | C/L | Loads with a valid certificate | PASS | Fixed: BUG-010. Let's Encrypt certificate, valid to 2027-01-30 (TC-LIVE-003) |
+| TC-PROD-003 | Deploy | L | A push to `master` publishes | PASS | Done at the owner's request: three Netlify deployments checked by the changed bundle name (`index-CvEo2IUV` → `Du9ix54K` → `8RpoIQC1`) |
 | TC-PROD-004 | Automated browser suite | E | Playwright suite passes | PASS | 120 passed, 12 skipped by viewport, across 6 browser setups |
+
+## Live site (https://prostaffconsulting.com, tested 2 November 2026)
+
+Method L. Contact-form requests were mocked in every automated live test, so no real email was sent by the suites. Two real sends are listed in TC-LIVE-018.
+
+| ID | Test | Expected | Status | Evidence |
+|---|---|---|---|---|
+| TC-LIVE-001 | `http://` redirects to `https://` | 301 to the https URL | PASS | `301 -> https://prostaffconsulting.com/` |
+| TC-LIVE-002 | `www` redirects to the primary domain, and public DNS is correct | CNAME to Netlify; 301 to the apex | PASS | Public DNS (8.8.8.8, 1.1.1.1, 9.9.9.9) and GoDaddy's own name servers return `prostaffconsulting.netlify.app`; `301 -> https://prostaffconsulting.com/`. This PC's own resolver kept the old GitHub record for hours, which is a local cache and not a site fault |
+| TC-LIVE-003 | TLS certificate | Valid, trusted, covers both names, not near expiry | PASS | Let's Encrypt (YE1), CN `prostaffconsulting.com`, SANs `prostaffconsulting.com` and `www.prostaffconsulting.com`, valid 2026-11-01 to 2027-01-30, chain builds |
+| TC-LIVE-004 | TLS protocol versions | TLS 1.2 and 1.3 accepted; 1.0 and 1.1 rejected | PASS | Handshake probe: TLS 1.3 negotiated; TLS 1.0 and 1.1 rejected; TLS 1.2 accepted |
+| TC-LIVE-005 | Security headers on the live response | HSTS, nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy | PASS | `max-age=31536000`, `nosniff`, `SAMEORIGIN`, `strict-origin-when-cross-origin`, `camera=(), microphone=(), geolocation=()`. No Content-Security-Policy: recorded under BUG-017, not a failure |
+| TC-LIVE-006 | Unknown URL | 404 status with the custom page | PASS | `/this-page-does-not-exist-qa` returns 404 with the branded page |
+| TC-LIVE-007 | Direct load of the other pages | 200 | PASS | `/privacy.html` and `/terms.html` return 200 |
+| TC-LIVE-008 | robots, sitemap and share assets | Reachable and on the live domain | PASS | robots allows all and names the sitemap; sitemap lists 3 URLs, all 200; `og-image.jpg`, `favicon.svg`, `apple-touch-icon.png`, `logo-mark.svg` return 200 |
+| TC-LIVE-009 | Page metadata | Title, description 50-170 characters, `lang`, canonical, Open Graph, Twitter card, no `noindex`, one H1, no skipped heading levels, valid JSON-LD | PASS | All present; canonical, `og:url` and `og:image` use the live domain; description 165 characters |
+| TC-LIVE-010 | Asset caching and compression | Hashed assets immutable; HTML compressed | PASS | JS and CSS `public,max-age=31536000,immutable`; HTML served with Brotli |
+| TC-LIVE-011 | Console and network on load | No console errors or warnings, no failed or 4xx/5xx requests | PASS | 0 messages, 0 failed requests; the only third-party host is `images.unsplash.com` |
+| TC-LIVE-012 | Links | Anchors have targets; mailto and tel valid; external links reachable; `noopener` on new-tab links | PASS | 7 anchors, `mailto:` and `tel:` valid, WhatsApp 200, LinkedIn 200 (it responds, but whether it is the official page is still TC-LNK-005), both new-tab links have `noopener noreferrer`, no placeholder `href`, 31 of 31 images have `alt` and none are broken |
+| TC-LIVE-013 | Responsive at 320x568, 360x800, 375x812, 390x844, 414x896, 768x1024, 1024x768, 1280x800, 1366x768, 1440x900, 1920x1080 and a 640px-wide (200% zoom) viewport | No horizontal overflow, no JavaScript errors | PASS | 0px overflow in all 12; screenshots in `test-results/live-audit/` |
+| TC-LIVE-014 | Full e2e suite on the live site | Desktop and mobile pass | PASS | `playwright test --config playwright.live.config.js`: 48 passed, 0 failed, 4 skipped (desktop-only tests on mobile and the reverse) |
+| TC-LIVE-015 | axe WCAG 2.1 A/AA on the live site | No serious or critical violations | PASS | Desktop and mobile |
+| TC-LIVE-016 | WCAG 2.2 AA target size (SC 2.5.8) | No violations; standalone links at least 24px | PASS | Fixed: BUG-021 (the footer legal links were 15px). Test added in `e2e/layout-a11y.spec.js` and passing locally and on the live site |
+| TC-LIVE-017 | Lighthouse on the live URL | Scores recorded | PASS | Mobile: performance 85, accessibility 100, best practices 100, SEO 100; FCP 2.7 s, LCP 3.4 s, TBT 0 ms, CLS 0. Desktop: 97, 100, 100, 100; FCP 0.6 s, LCP 0.8 s, TBT 0 ms, CLS 0.005. Lab data only, not field data |
+| TC-LIVE-018 | Real enquiry from the live form | Accepted by the form service; visitor sees the confirmation | PASS | A headless Chrome run on `https://prostaffconsulting.com` returned HTTP 200 `{"success":"true"}` with all six fields in the payload and showed "Thank you. We'll be in touch within 24 hours." Marked as a test. Arrival of that message was not confirmed by the inbox owner; arrival of the earlier test is TC-FORM-016 |
+| TC-LIVE-019 | "Powered by Netlify" badge | Not shown | PASS | The owner switched it off in Netlify; the live page no longer loads the badge script |
+| TC-LIVE-020 | Netlify deploy follows `git push` | New bundle served after each push | PASS | Bundle name changed after each of three pushes |

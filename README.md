@@ -15,6 +15,8 @@ npm run lint      # ESLint
 npm test          # Vitest suite
 npm run format    # Prettier
 npm run test:e2e  # Playwright browser tests against the production build
+npm run test:live # same browser tests against the live site (form requests are mocked)
+node scripts/live-audit.mjs  # read-only audit of the live site: redirects, headers, SEO, links, viewports
 ```
 
 ## Deploy to Netlify
