@@ -24,7 +24,7 @@ npm run test:e2e  # Playwright browser tests against the production build
 - **From Git (recommended):** push this project to GitHub, then in Netlify choose *Add new site → Import an existing project* and pick the repository. Netlify builds and redeploys on every push.
 - **Drag and drop:** run `npm run build`, then drop the `dist` folder on *Add new site → Deploy manually*. Repeat for every update.
 - **Contact form:** add `VITE_SHEETS_ENDPOINT` (optional) under *Site configuration → Environment variables* and redeploy. Variables are read at build time, so drag-and-drop uploads need them in a local `.env` before `npm run build`.
-- **Domain:** *Domain management → Add a domain*, then follow Netlify's DNS instructions in GoDaddy. Set the primary domain to match the canonical URL in `index.html`, `sitemap.xml` and `robots.txt` (currently `https://www.prostaffsolution.com/`).
+- **Domain:** *Domain management → Add a domain*, then follow Netlify's DNS instructions in GoDaddy. Set the primary domain to match the canonical URL in `index.html`, `sitemap.xml` and `robots.txt` (currently `https://www.prostaffconsulting.com/`).
 
 `npm run deploy:ghpages` still publishes to GitHub Pages under `/prostaff-website/`.
 
