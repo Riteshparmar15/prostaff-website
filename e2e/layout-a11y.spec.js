@@ -46,3 +46,30 @@ test('no serious or critical WCAG 2.1 A/AA violations', async ({ page }) => {
   test.info().annotations.push({ type: 'axe', description: JSON.stringify(summary) });
   expect(summary.filter((v) => ['serious', 'critical'].includes(v.impact))).toEqual([]);
 });
+
+test('footer legal links meet the WCAG 2.2 minimum target size (24px)', async ({ page }) => {
+  await page.goto('./');
+  const links = page.getByRole('contentinfo').getByRole('link', { name: /Privacy Policy|Terms of Use/ });
+  await expect(links).toHaveCount(2);
+  for (const link of await links.all()) {
+    await link.scrollIntoViewIfNeeded();
+    const box = await link.boundingBox();
+    expect(box.height).toBeGreaterThanOrEqual(24);
+    expect(box.width).toBeGreaterThanOrEqual(24);
+  }
+});
+
+test('no WCAG 2.2 AA target-size violations', async ({ page }) => {
+  test.slow();
+  await page.goto('./');
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 600) {
+      window.scrollTo(0, y);
+      await new Promise((r) => setTimeout(r, 150));
+    }
+    window.scrollTo(0, 0);
+  });
+  await page.waitForTimeout(1500);
+  const { violations } = await new AxeBuilder({ page }).withTags(['wcag22aa']).analyze();
+  expect(violations.map((v) => ({ id: v.id, sample: v.nodes[0]?.target.join(' ') }))).toEqual([]);
+});

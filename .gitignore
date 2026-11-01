@@ -9,5 +9,6 @@ dist-ssr
 *.log
 dist-file
 playwright-report
+playwright-report-live
 test-results
 lighthouse

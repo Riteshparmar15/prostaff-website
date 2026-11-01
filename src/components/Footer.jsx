@@ -85,7 +85,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-ivory/90 transition-colors duration-200 hover:text-gold-light"
+                    className="inline-flex min-h-[24px] items-center text-ivory/90 transition-colors duration-200 hover:text-gold-light"
                   >
                     {link.label}
                   </a>

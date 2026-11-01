@@ -32,6 +32,11 @@ export default [
     languageOptions: { globals: globals.node },
   },
   {
+    // Runs in Node but passes callbacks to page.evaluate(), which execute in the browser
+    files: ['scripts/live-audit.mjs'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
+  {
     files: ['src/test/**'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },

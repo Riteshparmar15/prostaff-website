@@ -33,15 +33,17 @@ export const test = base.extend({
     });
     await use(state);
   }, { auto: true }],
-  errors: async ({ page }, use) => {
+  errors: async ({ page, baseURL }, use) => {
     const errors = [];
+    // Failed requests are only counted for the site under test (localhost locally, the real domain live)
+    const appHost = new URL(baseURL).hostname;
     page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
     page.on('console', (m) => m.type() === 'error' && errors.push(`console: ${m.text()}`));
     page.on('requestfailed', (r) => {
-      if (new URL(r.url()).hostname === 'localhost') errors.push(`requestfailed: ${r.url()}`);
+      if (new URL(r.url()).hostname === appHost) errors.push(`requestfailed: ${r.url()}`);
     });
     page.on('response', (r) => {
-      if (new URL(r.url()).hostname === 'localhost' && r.status() >= 400) {
+      if (new URL(r.url()).hostname === appHost && r.status() >= 400) {
         errors.push(`HTTP ${r.status()}: ${r.url()}`);
       }
     });
