@@ -1,111 +1,29 @@
 import { useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Loader2 } from 'lucide-react';
+import { CheckCircle2, ChevronDown, Loader2, XCircle } from 'lucide-react';
 import { contact } from '../data/content';
+import {
+  HONEYPOT,
+  LIMITS,
+  REQUIRED,
+  failureMessage,
+  sendEnquiry,
+  validate,
+  validateField,
+} from '../lib/enquiry';
 import SectionHeading from './ui/SectionHeading';
 import Button from './ui/Button';
 import Reveal, { EASE_LUXE, stagger } from './ui/Reveal';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const REQUIRED = ['firstName', 'lastName', 'email', 'profile', 'message'];
 const INITIAL = { firstName: '', lastName: '', email: '', phone: '', profile: '', message: '' };
-const SUCCESS_TIMEOUT = 5000;
-const REQUEST_TIMEOUT = 15000;
-const HONEYPOT = 'company_website';
-
-function validate(values) {
-  const { errors } = contact.form;
-  const out = {};
-  REQUIRED.forEach((key) => {
-    if (!values[key].trim()) out[key] = errors.required;
-  });
-  if (!out.email && !EMAIL_RE.test(values.email.trim())) out.email = errors.emailInvalid;
-  return out;
-}
-
-async function sendEnquiry(values) {
-  const enquiry = {
-    name: `${values.firstName.trim()} ${values.lastName.trim()}`,
-    email: values.email.trim(),
-    phone: values.phone.trim() || 'Not provided',
-    profile: values.profile,
-    message: values.message.trim(),
-    submittedAt: `${new Date().toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    })} IST`,
-  };
-  const channels = [contact.form.emailjs ? sendViaEmailJS(enquiry) : sendViaFormEndpoint(enquiry)];
-  if (contact.form.sheetsEndpoint) channels.push(sendViaGoogleSheets(enquiry));
-
-  // The enquiry counts as received when at least one channel confirms it
-  const results = await Promise.allSettled(channels);
-  const failures = results.filter((r) => r.status === 'rejected').map((r) => r.reason);
-  if (failures.length === results.length) throw failures[0];
-  failures.forEach((err) => console.warn('Enquiry channel failed:', err));
-}
-
-async function sendViaGoogleSheets(enquiry) {
-  const res = await fetch(contact.form.sheetsEndpoint, {
-    method: 'POST',
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT),
-    // text/plain keeps this a simple CORS request; Apps Script cannot answer preflight requests
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ ...enquiry, [HONEYPOT]: '' }),
-  });
-  const data = await res.json().catch(() => null);
-  if (!res.ok || data?.ok !== true) {
-    throw new Error(`Google Sheets: ${data?.error || `request failed (${res.status})`}`);
-  }
-}
-
-async function sendViaEmailJS(enquiry) {
-  const { serviceId, templateId, publicKey } = contact.form.emailjs;
-  const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-    method: 'POST',
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT),
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      service_id: serviceId,
-      template_id: templateId,
-      user_id: publicKey,
-      template_params: {
-        ...enquiry,
-        submitted_at: enquiry.submittedAt,
-        reply_to: enquiry.email,
-      },
-    }),
-  });
-  if (!res.ok) throw new Error(`EmailJS ${res.status}: ${await res.text()}`);
-}
-
-async function sendViaFormEndpoint(enquiry) {
-  // Accept header makes FormSubmit / Formspree / Getform reply with JSON instead of redirecting
-  const res = await fetch(contact.form.endpoint, {
-    method: 'POST',
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT),
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      'Full Name': enquiry.name,
-      'Email Address': enquiry.email,
-      'Phone Number': enquiry.phone,
-      'Enquiry Type': enquiry.profile,
-      Message: enquiry.message,
-      'Submitted On': enquiry.submittedAt,
-      _subject: `New website enquiry (${enquiry.profile}) — ${enquiry.name}`,
-      _replyto: enquiry.email,
-      _template: 'table',
-      _captcha: 'false',
-    }),
-  });
-  // FormSubmit answers 200 with { success: "false" } when the inbox is not yet activated.
-  // A non-JSON 200 (proxy, captive portal or challenge page) is not proof of delivery.
-  const data = await res.json().catch(() => null);
-  if (!res.ok || !data || String(data.success) === 'false') {
-    throw new Error(data?.message || `Request failed: ${res.status}`);
-  }
-}
+const SUCCESS_TIMEOUT = 10000;
+const MAX_LENGTH = {
+  firstName: LIMITS.name,
+  lastName: LIMITS.name,
+  email: LIMITS.email,
+  phone: LIMITS.phone,
+  message: LIMITS.message,
+};
 
 /* ------------------------------------------------------------------ */
 
@@ -145,14 +63,18 @@ function ContactForm() {
   const f = contact.form;
   const [values, setValues] = useState(INITIAL);
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState('idle'); // idle | sending | success | error
+  const [status, setStatus] = useState('idle'); // idle | invalid | sending | success | error
+  const [failure, setFailure] = useState('');
   // The disabled button only applies after a re-render, so a fast double-click could send twice
   const sendingRef = useRef(false);
+  const successTimer = useRef(null);
 
   const succeed = () => {
     setStatus('success');
     setValues(INITIAL);
-    setTimeout(() => setStatus('idle'), SUCCESS_TIMEOUT);
+    setErrors({});
+    clearTimeout(successTimer.current);
+    successTimer.current = setTimeout(() => setStatus('idle'), SUCCESS_TIMEOUT);
   };
 
   const inputProps = (name) => ({
@@ -160,9 +82,18 @@ function ContactForm() {
     name,
     value: values[name],
     placeholder: f.fields[name].placeholder,
+    maxLength: MAX_LENGTH[name],
     onChange: (e) => {
-      setValues((v) => ({ ...v, [name]: e.target.value }));
-      if (errors[name]) setErrors((errs) => ({ ...errs, [name]: undefined }));
+      const { value } = e.target;
+      setValues((v) => ({ ...v, [name]: value }));
+      // Once a field has an error, re-check it on every keystroke so the message clears as soon as it is fixed
+      if (errors[name]) setErrors((errs) => ({ ...errs, [name]: validateField(name, value) }));
+      if (status === 'error' || status === 'invalid') setStatus('idle');
+    },
+    onBlur: (e) => {
+      if (e.target.value.trim()) {
+        setErrors((errs) => ({ ...errs, [name]: validateField(name, e.target.value) }));
+      }
     },
     'aria-invalid': !!errors[name],
     'aria-describedby': errors[name] ? `contact-${name}-error` : undefined,
@@ -175,8 +106,9 @@ function ContactForm() {
     if (sendingRef.current) return;
     const found = validate(values);
     setErrors(found);
-    const firstInvalid = REQUIRED.find((k) => found[k]);
+    const firstInvalid = Object.keys(INITIAL).find((k) => found[k]);
     if (firstInvalid) {
+      setStatus('invalid');
       document.getElementById(`contact-${firstInvalid}`)?.focus();
       return;
     }
@@ -194,11 +126,14 @@ function ContactForm() {
       succeed();
     } catch (err) {
       console.error(err);
+      setFailure(failureMessage(err));
       setStatus('error');
     } finally {
       sendingRef.current = false;
     }
   };
+
+  const errorCount = Object.values(errors).filter(Boolean).length;
 
   return (
     <form
@@ -220,7 +155,7 @@ function ContactForm() {
         <Field name="email" error={errors.email} required>
           <input type="email" autoComplete="email" {...inputProps('email')} />
         </Field>
-        <Field name="phone">
+        <Field name="phone" error={errors.phone}>
           <input type="tel" inputMode="tel" autoComplete="tel" {...inputProps('phone')} />
         </Field>
       </div>
@@ -296,23 +231,38 @@ function ContactForm() {
 
       <AnimatePresence>
         {status === 'success' && (
-          <motion.p
+          <motion.div
             role="status"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: EASE_LUXE }}
-            className="rounded-luxe border border-gold/50 bg-gold/10 px-5 py-4 text-sm font-normal tracking-wide text-gold-deep"
+            transition={{ duration: 0.4, ease: EASE_LUXE }}
+            className="flex items-start gap-3 rounded-luxe border border-emerald-700/40 bg-emerald-50 px-5 py-4 text-sm text-emerald-900"
           >
-            ✦ &nbsp; {f.success}
-          </motion.p>
+            <CheckCircle2 aria-hidden="true" strokeWidth={1.75} className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+            <p>
+              <strong className="block font-semibold">{f.successTitle}</strong>
+              {f.success}
+            </p>
+          </motion.div>
         )}
       </AnimatePresence>
 
       {status === 'error' && (
-        <p role="alert" className="text-sm text-red-800">
-          {f.failure}
-        </p>
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-luxe border border-red-800/40 bg-red-50 px-5 py-4 text-sm text-red-900"
+        >
+          <XCircle aria-hidden="true" strokeWidth={1.75} className="mt-0.5 h-5 w-5 shrink-0 text-red-800" />
+          <p>
+            <strong className="block font-semibold">{f.failureTitle}</strong>
+            {failure}
+          </p>
+        </div>
+      )}
+
+      {status === 'invalid' && errorCount > 0 && (
+        <p className="text-sm text-red-800">{f.invalidSummary(errorCount)}</p>
       )}
     </form>
   );

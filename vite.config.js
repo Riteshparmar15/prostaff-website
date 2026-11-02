@@ -90,6 +90,12 @@ export default defineConfig(({ mode }) => {
       ...(mode === 'file' ? [relativePaths(), viteSingleFile()] : []),
     ],
     base,
+    define: {
+      // Netlify Forms only exists on Netlify, which sets NETLIFY=true during its builds
+      'import.meta.env.VITE_NETLIFY_FORM': JSON.stringify(
+        process.env.VITE_NETLIFY_FORM ?? (process.env.NETLIFY === 'true' ? 'enquiry' : ''),
+      ),
+    },
     ...(mode === 'file' && { build: { outDir: FILE_OUT_DIR } }),
     test: {
       environment: 'jsdom',

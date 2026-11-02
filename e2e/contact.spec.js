@@ -1,7 +1,7 @@
 import { test, expect, fillValidEnquiry } from './fixtures';
 
 const SUCCESS = "Thank you. We'll be in touch within 24 hours.";
-const FAILURE = /Something went wrong/;
+const FAILURE = /Message not sent/;
 
 test.beforeEach(async ({ page }) => {
   await page.goto('./#contact');
@@ -57,6 +57,7 @@ test('network failure shows the failure message', async ({ page, formMock }) => 
   const form = await fillValidEnquiry(page);
   await form.getByRole('button', { name: 'Send Message' }).click();
   await expect(form.getByText(FAILURE)).toBeVisible();
+  await expect(form.getByText(/check your internet connection/)).toBeVisible();
 });
 
 test('unactivated FormSubmit inbox is reported as a failure, not success', async ({
@@ -91,7 +92,8 @@ test('a request that never answers times out and re-enables the form', async ({
   const form = await fillValidEnquiry(page);
   await form.getByRole('button', { name: 'Send Message' }).click();
   await expect(form.getByRole('button', { name: 'Sending…' })).toBeDisabled();
-  await expect(form.getByText(FAILURE)).toBeVisible({ timeout: 20_000 });
+  await expect(form.getByText(FAILURE)).toBeVisible({ timeout: 30_000 });
+  await expect(form.getByText(/took too long/)).toBeVisible();
   await expect(form.getByRole('button', { name: 'Send Message' })).toBeEnabled();
   await expect(form.getByLabel(/First Name/)).toHaveValue('QA');
 });

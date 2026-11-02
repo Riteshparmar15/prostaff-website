@@ -520,8 +520,17 @@ export const contact = {
     },
     submit: 'Send Message',
     sending: 'Sending…',
+    successTitle: 'Message sent successfully',
     success: "Thank you. We'll be in touch within 24 hours.",
-    failure: 'Something went wrong. Please try again or email adarsh.dubeyenterprises@gmail.com.',
+    failureTitle: 'Message not sent',
+    failures: {
+      server: `Something went wrong on our side. Please try again, or email us at ${company.email}.`,
+      network: `We couldn't reach our server. Please check your internet connection and try again, or email us at ${company.email}.`,
+      offline: 'You appear to be offline. Please reconnect to the internet and try again.',
+      timeout: `The server took too long to respond. Please try again in a moment, or email us at ${company.email}.`,
+    },
+    invalidSummary: (count) =>
+      count === 1 ? 'Please correct the highlighted field.' : `Please correct the ${count} highlighted fields.`,
     consent: {
       before: 'By submitting, you agree to our ',
       link: 'Privacy Policy',
@@ -530,8 +539,14 @@ export const contact = {
     },
     errors: {
       required: 'This field is required.',
-      emailInvalid: 'Please enter a valid email address.',
+      nameShort: 'Please enter at least 2 letters.',
+      nameInvalid: 'Please use letters only.',
+      emailInvalid: 'Please enter a valid email address, e.g. name@company.com.',
+      phoneInvalid: 'Please enter a valid phone number with 10 to 15 digits.',
+      messageShort: 'Please write at least 10 characters so we can help you.',
     },
+    // Set at build time on Netlify (see vite.config.js); the form definition lives in index.html
+    netlifyForm: import.meta.env.VITE_NETLIFY_FORM || null,
     // Branded emails via EmailJS when all three keys are set in .env (see .env.example)
     emailjs:
       import.meta.env.VITE_EMAILJS_SERVICE_ID &&

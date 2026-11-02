@@ -70,6 +70,17 @@
 
 <body>
   <div id="root"></div>
+  <!-- Netlify Forms only accepts fields declared in static HTML; keep in sync with sendViaNetlify in src/lib/enquiry.js -->
+  <form name="enquiry" data-netlify="true" netlify-honeypot="company_website" hidden>
+    <input type="hidden" name="subject" />
+    <input type="text" name="name" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="text" name="profile" />
+    <textarea name="message"></textarea>
+    <input type="text" name="submitted_at" />
+    <input type="text" name="company_website" />
+  </form>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
