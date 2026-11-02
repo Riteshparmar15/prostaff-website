@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { contact } from '../data/content';
 import { failureMessage, validate, validateField } from '../lib/enquiry';
-import { FORMSUBMIT_URL, formatPhoneForEmail, tableEmailPayload } from '../lib/tableEmail';
-import { handler } from '../../netlify/functions/submission-created.mjs';
+import { formatPhoneForEmail, tableEmailPayload } from '../lib/tableEmail';
 
 const e = contact.form.errors;
 
@@ -161,38 +160,29 @@ describe('table email', () => {
     });
   });
 
-  const event = (form_name) => ({
-    body: JSON.stringify({
-      payload: {
-        form_name,
-        data: {
-          name: enquiry.name,
-          email: enquiry.email,
-          phone: enquiry.phone,
-          profile: enquiry.profile,
-          message: enquiry.message,
-          submitted_at: enquiry.submittedAt,
-          ip: '1.2.3.4',
-        },
-      },
-    }),
-  });
-
-  it('Netlify function forwards an enquiry submission as a table email', async () => {
-    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"success":"true"}', { status: 200 }));
-    const res = await handler(event('enquiry'));
-    expect(res.statusCode).toBe(200);
-    const [url, init] = spy.mock.calls[0];
-    expect(url).toBe(FORMSUBMIT_URL);
-    expect(init.headers.Referer).toBe('https://prostaffconsulting.com/');
-    expect(JSON.parse(init.body)).toEqual(tableEmailPayload(enquiry));
-  });
-
-  it('Netlify function ignores other forms and reports FormSubmit failures', async () => {
-    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"success":"false"}', { status: 200 }));
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect((await handler(event('other'))).statusCode).toBe(200);
-    expect(spy).not.toHaveBeenCalled();
-    expect((await handler(event('enquiry'))).statusCode).toBe(502);
+  it('after Netlify accepts, queues the table email as a keepalive form post without waiting for it', async () => {
+    let finishEmail;
+    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation((url) =>
+      url === '/'
+        ? Promise.resolve(new Response('ok', { status: 200 }))
+        : new Promise((resolve) => {
+            finishEmail = resolve;
+          }),
+    );
+    const { sendEnquiry } = await import('../lib/enquiry');
+    await sendEnquiry(
+      { firstName: 'Asha', lastName: 'Mehta', email: 'asha@example.com', phone: '9876543210', profile: 'Other', message: 'Need boutique staff.' },
+      { ...contact.form, netlifyForm: 'enquiry', sheetsEndpoint: null },
+    );
+    expect(spy).toHaveBeenCalledTimes(2);
+    const [url, init] = spy.mock.calls[1];
+    expect(url).toBe(contact.form.endpoint);
+    expect(init.keepalive).toBe(true);
+    expect(init.headers).toEqual({ Accept: 'application/json' });
+    const body = Object.fromEntries(init.body);
+    expect(body._template).toBe('table');
+    expect(body['Full Name']).toBe('Asha Mehta');
+    expect(body['Phone Number']).toBe('98765 43210');
+    finishEmail(new Response('{"success":"true"}', { status: 200 }));
   });
 });

@@ -305,11 +305,12 @@ describe('contact form on Netlify', () => {
     await user.click(f.getByRole('button', { name: contact.form.submit }));
   };
 
-  it('posts to Netlify Forms and skips the backup when Netlify accepts it', async () => {
+  it('posts to Netlify Forms, then only queues the table email when Netlify accepts it', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('ok', { status: 200 }));
     await submitValid();
     expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.successTitle);
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(fetchSpy.mock.calls.map(([url]) => url)).toEqual(['/', contact.form.endpoint]);
+    expect(fetchSpy.mock.calls[1][1].keepalive).toBe(true);
 
     const [url, init] = fetchSpy.mock.calls[0];
     expect(url).toBe('/');

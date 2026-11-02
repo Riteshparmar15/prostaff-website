@@ -82,7 +82,9 @@ export async function sendEnquiry(values, form = contact.form) {
 async function sendPrimary(enquiry, form) {
   if (form.netlifyForm) {
     try {
-      return await sendViaNetlify(enquiry, form.netlifyForm);
+      await sendViaNetlify(enquiry, form.netlifyForm);
+      queueTableEmail(enquiry, form.endpoint);
+      return;
     } catch (err) {
       console.warn('Netlify Forms failed, using the backup channel:', err);
     }
@@ -107,6 +109,18 @@ async function sendViaNetlify(enquiry, formName) {
     }).toString(),
   });
   if (!res.ok) throw new Error(`Netlify Forms: request failed (${res.status})`);
+}
+
+// Netlify's notification email is plain text, so the inbox copy is FormSubmit's table email.
+// It can take over a minute: keepalive lets it finish after the visitor leaves the page, and a
+// form-encoded body with only safelisted headers avoids the CORS preflight keepalive cannot do.
+function queueTableEmail(enquiry, endpoint) {
+  fetch(endpoint, {
+    method: 'POST',
+    keepalive: true,
+    headers: { Accept: 'application/json' },
+    body: new URLSearchParams(tableEmailPayload(enquiry)),
+  }).catch((err) => console.warn('Table email failed:', err));
 }
 
 async function sendViaGoogleSheets(enquiry, endpoint) {

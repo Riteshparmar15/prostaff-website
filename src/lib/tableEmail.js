@@ -1,8 +1,3 @@
-// No imports: also bundled into netlify/functions/submission-created.mjs
-
-export const ENQUIRY_INBOX = 'adarsh.dubeyenterprises@gmail.com';
-export const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${ENQUIRY_INBOX}`;
-
 export function formatPhoneForEmail(phone) {
   if (!phone || phone === 'Not provided') return 'Not provided';
   const digits = phone.replace(/\D/g, '');
