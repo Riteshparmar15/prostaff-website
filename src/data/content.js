@@ -53,7 +53,7 @@ const unsplash = (photoId, params = '') =>
  */
 export const company = {
   email: 'adarsh.dubeyenterprises@gmail.com',
-  enquiryInbox: 'ritesh.parmar1599@gmail.com', // receives contact-form submissions
+  enquiryInbox: 'adarsh.dubeyenterprises@gmail.com', // receives contact-form submissions
   foundedYear: null, // e.g. 2022
   address: 'Prostaff, Parshwa Complex, Ellora Park, Subhanpura, Vadodara, Gujarat - 390023',
   phone: '+91 90235 58486',
