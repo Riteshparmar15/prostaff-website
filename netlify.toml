@@ -8,6 +8,6 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# The contact form emails FormSubmit directly (company.enquiryInbox). Optional override:
-#   VITE_CONTACT_ENDPOINT
+# The contact form posts to Netlify Forms (the hidden "enquiry" form in index.html). Netlify emails the
+# inbox; the visitor is not kept waiting. Keep the form notification on under Forms > Form submission notifications.
 # Netlify serves dist/404.html for unknown URLs automatically.

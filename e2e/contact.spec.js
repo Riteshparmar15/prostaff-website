@@ -92,7 +92,7 @@ test('a request that never answers times out and re-enables the form', async ({
   const form = await fillValidEnquiry(page);
   await form.getByRole('button', { name: 'Send Message' }).click();
   await expect(form.getByRole('button', { name: 'Sending…' })).toBeDisabled();
-  await expect(form.getByText(FAILURE)).toBeVisible({ timeout: 95_000 });
+  await expect(form.getByText(FAILURE)).toBeVisible({ timeout: 30_000 });
   await expect(form.getByText(/took too long/)).toBeVisible();
   await expect(form.getByRole('button', { name: 'Send Message' })).toBeEnabled();
   await expect(form.getByLabel(/First Name/)).toHaveValue('QA');

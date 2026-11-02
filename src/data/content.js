@@ -545,7 +545,9 @@ export const contact = {
       phoneInvalid: 'Please enter a valid phone number with 10 to 15 digits.',
       messageShort: 'Please write at least 10 characters so we can help you.',
     },
-    // FormSubmit emails each submission to the inbox as a table. Override with VITE_CONTACT_ENDPOINT.
+    // Set on Netlify builds (vite.config.js). Netlify emails the inbox; the form does not wait for FormSubmit.
+    netlifyForm: import.meta.env.VITE_NETLIFY_FORM || null,
+    // Used only when the site is not built on Netlify.
     endpoint: import.meta.env.VITE_CONTACT_ENDPOINT || `https://formsubmit.co/ajax/${company.enquiryInbox}`,
   },
 };

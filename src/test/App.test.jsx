@@ -103,6 +103,29 @@ describe('contact form', () => {
     });
   });
 
+  it('on Netlify it confirms from Netlify alone and does not wait for FormSubmit', async () => {
+    contact.form.netlifyForm = 'enquiry';
+    try {
+      const user = userEvent.setup();
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('ok', { status: 200 }));
+      render(<App />);
+      await fillValid(user);
+      await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
+      expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.successTitle);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchSpy.mock.calls[0];
+      expect(url).toBe('/');
+      expect(Object.fromEntries(new URLSearchParams(init.body))).toMatchObject({
+        'form-name': 'enquiry',
+        email: 'asha@example.com',
+        'Full Name': 'Asha Mehta',
+        Message: 'We need boutique staff.',
+      });
+    } finally {
+      contact.form.netlifyForm = null;
+    }
+  });
+
   it('treats a non-JSON reply as a failure', async () => {
     const user = userEvent.setup();
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html>Sign in</html>', { status: 200 }));

@@ -49,7 +49,7 @@ node scripts/live-audit.mjs  # read-only audit of the live site: redirects, head
 
 ## Before launch
 
-- Contact form emails go through [FormSubmit](https://formsubmit.co) to `company.enquiryInbox`, as a table (one row per field). Activate the inbox once from the first email FormSubmit sends. Override the address with `VITE_CONTACT_ENDPOINT` (see `.env.example`).
+- On the live site the contact form posts to Netlify Forms, which emails `company.enquiryInbox`. The visitor gets the result in under a second. FormSubmit is only used for a build that is not on Netlify.
 - Fill in the remaining `company` fields (CIN, GSTIN, street address, founding year) in `src/data/content.js`. Anything left `null` stays hidden.
 - See `REVIEW.md` for the full list.
 - `.backup/luxehire-version.zip` holds the previous LuxeHire build of this project.

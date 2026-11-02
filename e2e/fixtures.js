@@ -22,6 +22,14 @@ export const test = base.extend({
       'Access-Control-Allow-Headers': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
     };
+    await page.route(
+      (url) => url.pathname === '/',
+      async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        state.submissions.push(route.request());
+        return route.fulfill({ status: 200, body: 'ok', headers: cors });
+      },
+    );
     await page.route(/formsubmit\.co/, async (route) => {
       if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
       state.submissions.push(route.request());

@@ -8,8 +8,10 @@ export const REQUIRED = ['firstName', 'lastName', 'email', 'profile', 'message']
 export const LIMITS = { name: 50, email: 254, phone: 20, messageMin: 10, message: 2000 };
 export const HONEYPOT = 'company_website';
 
-// FormSubmit sends the email before it replies, which can take well over 10 seconds
-const REQUEST_TIMEOUT = 90000;
+// Netlify accepts the enquiry in well under a second and emails the inbox itself
+const NETLIFY_TIMEOUT = 8000;
+// FormSubmit is only the local fallback; it sends the email before it replies
+const REQUEST_TIMEOUT = 20000;
 
 /** Returns the error message for one field, or undefined when the value is acceptable. */
 export function validateField(name, rawValue) {
@@ -63,10 +65,35 @@ export function buildEnquiry(values) {
   };
 }
 
-/** Sends the enquiry to FormSubmit, which emails the inbox as a two-column table. */
+/** On the live site this returns as soon as Netlify accepts it, which is under a second. */
 export async function sendEnquiry(values, form = contact.form) {
   const enquiry = buildEnquiry(values);
-  const res = await fetch(form.endpoint, {
+  if (form.netlifyForm) return sendViaNetlify(enquiry, form.netlifyForm);
+  return sendViaFormSubmit(enquiry, form.endpoint);
+}
+
+async function sendViaNetlify(enquiry, formName) {
+  const res = await fetch('/', {
+    method: 'POST',
+    signal: AbortSignal.timeout(NETLIFY_TIMEOUT),
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      'form-name': formName,
+      subject: `New website enquiry (${enquiry.profile}) — ${enquiry.name}`,
+      email: enquiry.email,
+      'Full Name': enquiry.name,
+      'Email Address': enquiry.email,
+      'Phone Number': enquiry.phone,
+      'Enquiry Type': enquiry.profile,
+      Message: enquiry.message,
+      'Submitted On': enquiry.submittedAt,
+    }).toString(),
+  });
+  if (!res.ok) throw new Error(`Netlify Forms: request failed (${res.status})`);
+}
+
+async function sendViaFormSubmit(enquiry, endpoint) {
+  const res = await fetch(endpoint, {
     method: 'POST',
     signal: AbortSignal.timeout(REQUEST_TIMEOUT),
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
