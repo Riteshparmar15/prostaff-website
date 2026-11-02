@@ -12,5 +12,6 @@
 #   VITE_SHEETS_ENDPOINT   optional Google Sheets web app URL (see google-apps-script/Code.gs)
 #   VITE_CONTACT_ENDPOINT  optional; the backup channel, defaults to FormSubmit for company.enquiryInbox
 # Netlify Forms (the primary channel) is switched on automatically on Netlify builds. The "enquiry" form is
-# declared in index.html; set the email notification under Forms > Form submission notifications.
+# declared in index.html. Each verified submission runs netlify/functions/submission-created.mjs, which
+# emails it to the inbox as a table; keep Netlify's own email notification off to avoid duplicates.
 # Netlify serves dist/404.html for unknown URLs automatically.

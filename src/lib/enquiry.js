@@ -1,4 +1,5 @@
 import { contact } from '../data/content';
+import { enquirySubject, tableEmailPayload } from './tableEmail';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const NAME_RE = /^\p{L}[\p{L}\p{M} .'’-]*$/u;
@@ -65,51 +66,6 @@ export function buildEnquiry(values) {
   };
 }
 
-/** Phone number as it should appear in the enquiry email. */
-export function formatPhoneForEmail(phone) {
-  if (!phone || phone === 'Not provided') return 'Not provided';
-  const digits = phone.replace(/\D/g, '');
-  if (digits.length === 10) return `${digits.slice(0, 5)} ${digits.slice(5)}`;
-  if (digits.length === 12 && digits.startsWith('91')) {
-    return `+91 ${digits.slice(2, 7)} ${digits.slice(7)}`;
-  }
-  return phone;
-}
-
-/**
- * One readable letter for the inbox. Netlify Forms can only dump field names and
- * values, so this is the body we send (instead of a raw list of inputs).
- */
-export function formatEnquiryLetter(enquiry) {
-  const phone = formatPhoneForEmail(enquiry.phone);
-  return [
-    'PROSTAFF SOLUTION',
-    'Premium Staffing Solutions',
-    'prostaffconsulting.com',
-    '',
-    'NEW WEBSITE ENQUIRY',
-    '────────────────────────',
-    '',
-    `Full Name:      ${enquiry.name}`,
-    `Email Address:  ${enquiry.email}`,
-    `Phone Number:   ${phone}`,
-    `Enquiry Type:   ${enquiry.profile}`,
-    `Submitted On:   ${enquiry.submittedAt}`,
-    '',
-    'MESSAGE',
-    '────────────────────────',
-    enquiry.message,
-    '',
-    '────────────────────────',
-    `Reply to this email to respond to ${enquiry.name}.`,
-    'Prostaff · A Division of Dubey Enterprises',
-  ].join('\n');
-}
-
-export function enquirySubject(enquiry) {
-  return `New website enquiry (${enquiry.profile}) — ${enquiry.name}`;
-}
-
 /** Resolves as soon as one delivery channel confirms the enquiry; rejects only when every channel fails. */
 export async function sendEnquiry(values, form = contact.form) {
   const enquiry = buildEnquiry(values);
@@ -144,7 +100,10 @@ async function sendViaNetlify(enquiry, formName) {
       subject: enquirySubject(enquiry),
       name: enquiry.name,
       email: enquiry.email,
-      Enquiry: formatEnquiryLetter(enquiry),
+      phone: enquiry.phone,
+      profile: enquiry.profile,
+      message: enquiry.message,
+      submitted_at: enquiry.submittedAt,
     }).toString(),
   });
   if (!res.ok) throw new Error(`Netlify Forms: request failed (${res.status})`);
@@ -189,18 +148,7 @@ async function sendViaFormEndpoint(enquiry, endpoint) {
     method: 'POST',
     signal: AbortSignal.timeout(REQUEST_TIMEOUT),
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      'Full Name': enquiry.name,
-      'Email Address': enquiry.email,
-      'Phone Number': formatPhoneForEmail(enquiry.phone),
-      'Enquiry Type': enquiry.profile,
-      Message: enquiry.message,
-      'Submitted On': enquiry.submittedAt,
-      _subject: enquirySubject(enquiry),
-      _replyto: enquiry.email,
-      _template: 'table',
-      _captcha: 'false',
-    }),
+    body: JSON.stringify(tableEmailPayload(enquiry)),
   });
   // FormSubmit answers 200 with { success: "false" } when the inbox is not yet activated.
   // A non-JSON 200 (proxy, captive portal or challenge page) is not proof of delivery.

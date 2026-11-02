@@ -1,12 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { contact } from '../data/content';
-import {
-  failureMessage,
-  formatEnquiryLetter,
-  formatPhoneForEmail,
-  validate,
-  validateField,
-} from '../lib/enquiry';
+import { failureMessage, validate, validateField } from '../lib/enquiry';
+import { FORMSUBMIT_URL, formatPhoneForEmail, tableEmailPayload } from '../lib/tableEmail';
+import { handler } from '../../netlify/functions/submission-created.mjs';
 
 const e = contact.form.errors;
 
@@ -117,10 +113,11 @@ describe('sendEnquiry payload integrity', () => {
     const { sendEnquiry } = await import('../lib/enquiry');
     await sendEnquiry(values, { ...contact.form, netlifyForm: 'enquiry', sheetsEndpoint: null });
     const body = Object.fromEntries(new URLSearchParams(spy.mock.calls[0][1].body));
-    expect(body.Enquiry).toContain(values.message.trim());
-    expect(body.Enquiry).toContain("Jos� D'Souza");
+    expect(body.message).toBe(values.message.trim());
     expect(body.name).toBe("Jos� D'Souza");
-    expect(Object.keys(body).sort()).toEqual(['Enquiry', 'email', 'form-name', 'name', 'subject'].sort());
+    expect(Object.keys(body).sort()).toEqual(
+      ['email', 'form-name', 'message', 'name', 'phone', 'profile', 'subject', 'submitted_at'].sort(),
+    );
   });
 
   it('keeps them intact through the FormSubmit backup', async () => {
@@ -131,7 +128,7 @@ describe('sendEnquiry payload integrity', () => {
   });
 });
 
-describe('enquiry email letter', () => {
+describe('table email', () => {
   const enquiry = {
     name: 'Asha Mehta',
     email: 'asha@example.com',
@@ -140,23 +137,62 @@ describe('enquiry email letter', () => {
     message: 'Need boutique staff in Dubai.',
     submittedAt: '2 Nov 2026, 2:26 pm IST',
   };
+  afterEach(() => vi.restoreAllMocks());
 
   it('formats a 10-digit Indian number with a space', () => {
     expect(formatPhoneForEmail('9876543210')).toBe('98765 43210');
+    expect(formatPhoneForEmail('919876543210')).toBe('+91 98765 43210');
     expect(formatPhoneForEmail('Not provided')).toBe('Not provided');
-    expect(formatPhoneForEmail('+91 98765 43210')).toBe('+91 98765 43210');
+    expect(formatPhoneForEmail('+971 50 123 4567')).toBe('+971 50 123 4567');
   });
 
-  it('builds a readable letter with every enquiry field', () => {
-    const letter = formatEnquiryLetter(enquiry);
-    expect(letter).toContain('PROSTAFF SOLUTION');
-    expect(letter).toContain('Premium Staffing Solutions');
-    expect(letter).toContain('Full Name:      Asha Mehta');
-    expect(letter).toContain('Email Address:  asha@example.com');
-    expect(letter).toContain('Phone Number:   98765 43210');
-    expect(letter).toContain('Enquiry Type:   Employer / Brand');
-    expect(letter).toContain('Submitted On:   2 Nov 2026, 2:26 pm IST');
-    expect(letter).toContain('Need boutique staff in Dubai.');
-    expect(letter).toContain('Reply to this email to respond to Asha Mehta.');
+  it('builds one table row per field with the table template', () => {
+    expect(tableEmailPayload(enquiry)).toEqual({
+      'Full Name': 'Asha Mehta',
+      'Email Address': 'asha@example.com',
+      'Phone Number': '98765 43210',
+      'Enquiry Type': 'Employer / Brand',
+      Message: 'Need boutique staff in Dubai.',
+      'Submitted On': '2 Nov 2026, 2:26 pm IST',
+      _subject: 'New website enquiry (Employer / Brand) — Asha Mehta',
+      _replyto: 'asha@example.com',
+      _template: 'table',
+      _captcha: 'false',
+    });
+  });
+
+  const event = (form_name) => ({
+    body: JSON.stringify({
+      payload: {
+        form_name,
+        data: {
+          name: enquiry.name,
+          email: enquiry.email,
+          phone: enquiry.phone,
+          profile: enquiry.profile,
+          message: enquiry.message,
+          submitted_at: enquiry.submittedAt,
+          ip: '1.2.3.4',
+        },
+      },
+    }),
+  });
+
+  it('Netlify function forwards an enquiry submission as a table email', async () => {
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"success":"true"}', { status: 200 }));
+    const res = await handler(event('enquiry'));
+    expect(res.statusCode).toBe(200);
+    const [url, init] = spy.mock.calls[0];
+    expect(url).toBe(FORMSUBMIT_URL);
+    expect(init.headers.Referer).toBe('https://prostaffconsulting.com/');
+    expect(JSON.parse(init.body)).toEqual(tableEmailPayload(enquiry));
+  });
+
+  it('Netlify function ignores other forms and reports FormSubmit failures', async () => {
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"success":"false"}', { status: 200 }));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect((await handler(event('other'))).statusCode).toBe(200);
+    expect(spy).not.toHaveBeenCalled();
+    expect((await handler(event('enquiry'))).statusCode).toBe(502);
   });
 });

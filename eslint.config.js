@@ -28,7 +28,7 @@ export default [
     },
   },
   {
-    files: ['scripts/**/*.mjs', '*.config.js'],
+    files: ['scripts/**/*.mjs', 'netlify/**/*.mjs', '*.config.js'],
     languageOptions: { globals: globals.node },
   },
   {
