@@ -10,6 +10,7 @@ export const test = base.extend({
   formMock: [async ({ page, skipIntro }, use) => {
     const state = {
       submissions: [],
+      netlifyPosts: [],
       reply: { status: 200, json: { success: 'true' } },
       delayMs: 0,
     };
@@ -22,6 +23,16 @@ export const test = base.extend({
       'Access-Control-Allow-Headers': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
     };
+    // On Netlify the form first posts to "/" (Netlify Forms). Never let that reach the real service:
+    // answer 404 so the form uses its backup channel, which the handler below mocks. Page loads (GET) pass through.
+    await page.route(
+      (url) => url.pathname === '/',
+      async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        state.netlifyPosts.push(route.request());
+        return route.fulfill({ status: 404, body: 'mocked', headers: { 'Access-Control-Allow-Origin': '*' } });
+      },
+    );
     await page.route(/formsubmit\.co|api\.emailjs\.com|script\.google\.com/, async (route) => {
       if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
       state.submissions.push(route.request());

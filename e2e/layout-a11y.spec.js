@@ -73,3 +73,56 @@ test('no WCAG 2.2 AA target-size violations', async ({ page }) => {
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag22aa']).analyze();
   expect(violations.map((v) => ({ id: v.id, sample: v.nodes[0]?.target.join(' ') }))).toEqual([]);
 });
+
+test.describe('contact form states fit every screen width', () => {
+  const widths = [320, 375, 768, 1024, 1366, 1920];
+
+  for (const width of widths) {
+    test(`validation errors and the failure panel do not overflow at ${width}px`, async ({ page, formMock }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto('./#contact');
+      const form = page.getByRole('form', { name: 'Contact form' });
+      const fits = async () => {
+        const scroll = await page.evaluate(() => document.documentElement.scrollWidth);
+        expect(scroll).toBeLessThanOrEqual(width);
+        const box = await form.boundingBox();
+        expect(box.x + box.width).toBeLessThanOrEqual(width);
+        // Nothing inside the form may poke out of it horizontally
+        const overflowing = await form.evaluate((f) => {
+          const right = f.getBoundingClientRect().right + 1;
+          return [...f.querySelectorAll('*')].filter((el) => el.getBoundingClientRect().right > right).length;
+        });
+        expect(overflowing).toBe(0);
+      };
+
+      // Worst case: every field invalid at once, with the longest messages
+      await form.getByLabel(/First Name/).fill('1');
+      await form.getByLabel(/Last Name/).fill('Te5t');
+      await form.getByLabel(/Email Address/).fill('qa@example');
+      await form.getByLabel(/Phone/).fill('12345');
+      await form.getByLabel(/Message/).fill('Hi');
+      await form.getByRole('button', { name: 'Send Message' }).click();
+      await expect(form.locator('[aria-invalid="true"]')).toHaveCount(6);
+      await expect(form.getByText('Please correct the 6 highlighted fields.')).toBeVisible();
+      await fits();
+
+      // Failure panel
+      formMock.reply = { status: 500, json: {} };
+      await form.getByLabel(/First Name/).fill('QA');
+      await form.getByLabel(/Last Name/).fill('Test');
+      await form.getByLabel(/Email Address/).fill('qa@example.com');
+      await form.getByLabel(/Phone/).fill('');
+      await form.getByLabel(/I am a/).selectOption('Other');
+      await form.getByLabel(/Message/).fill('A long enough message for the form.');
+      await form.getByRole('button', { name: 'Send Message' }).click();
+      await expect(form.getByText('Message not sent')).toBeVisible();
+      await fits();
+
+      // Success panel
+      formMock.reply = { status: 200, json: { success: 'true' } };
+      await form.getByRole('button', { name: 'Send Message' }).click();
+      await expect(form.getByText('Message sent successfully')).toBeVisible();
+      await fits();
+    });
+  }
+});

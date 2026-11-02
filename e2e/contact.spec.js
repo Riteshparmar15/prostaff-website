@@ -140,3 +140,52 @@ test('the form can be used again after a failure and after a success', async ({
   await expect(form.getByRole('status')).toContainText(SUCCESS);
   expect(formMock.submissions).toHaveLength(3);
 });
+
+test('live site tries Netlify Forms first with the right fields, then falls back (mocked, nothing sent)', async ({
+  page,
+  baseURL,
+  formMock,
+}) => {
+  test.skip(/localhost|127\.0\.0\.1/.test(baseURL), 'Netlify Forms is only enabled on Netlify builds');
+  const form = await fillValidEnquiry(page);
+  await form.getByRole('button', { name: 'Send Message' }).click();
+  await expect(form.getByRole('status')).toContainText(SUCCESS);
+
+  expect(formMock.netlifyPosts).toHaveLength(1);
+  const posted = Object.fromEntries(new URLSearchParams(formMock.netlifyPosts[0].postData()));
+  expect(posted).toMatchObject({
+    'form-name': 'enquiry',
+    name: 'QA Automation',
+    email: 'qa.automation@example.com',
+    phone: 'Not provided',
+    profile: 'Other',
+    message: 'Automated test enquiry. Please ignore.',
+  });
+  expect(posted.submitted_at).toMatch(/ IST$/);
+  // The mocked Netlify 404 sends the form to its backup channel, which is also mocked
+  expect(formMock.submissions).toHaveLength(1);
+});
+
+test('one click on Send right after typing an invalid value shows the errors (blur validation must not swallow the click)', async ({
+  page,
+  formMock,
+}) => {
+  const form = page.getByRole('form', { name: 'Contact form' });
+  await form.getByLabel(/Message/).fill('Hi');
+  await form.getByRole('button', { name: 'Send Message' }).click();
+  await expect(form.getByText('Please correct the 5 highlighted fields.')).toBeVisible();
+  await expect(form.locator('[aria-invalid="true"]')).toHaveCount(5);
+  expect(formMock.submissions).toHaveLength(0);
+});
+
+test('one click on Send right after typing a valid last field sends the enquiry once', async ({
+  page,
+  formMock,
+}) => {
+  const form = await fillValidEnquiry(page);
+  await form.getByLabel(/Phone/).fill('abc');
+  await form.getByLabel(/Phone/).fill('9876543210');
+  await form.getByRole('button', { name: 'Send Message' }).click();
+  await expect(form.getByRole('status')).toContainText(SUCCESS);
+  expect(formMock.submissions).toHaveLength(1);
+});

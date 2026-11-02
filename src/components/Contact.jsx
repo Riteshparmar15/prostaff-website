@@ -68,6 +68,23 @@ function ContactForm() {
   // The disabled button only applies after a re-render, so a fast double-click could send twice
   const sendingRef = useRef(false);
   const successTimerRef = useRef(null);
+  const pressingSubmitRef = useRef(false);
+  const pressTimerRef = useRef(null);
+
+  // Touch browsers blur the field after the pointer is released, so also expire the flag by timer
+  const onPressSubmit = (e) => {
+    clearTimeout(pressTimerRef.current);
+    pressingSubmitRef.current = !!e.target.closest('button[type="submit"]');
+    if (pressingSubmitRef.current) {
+      pressTimerRef.current = setTimeout(() => {
+        pressingSubmitRef.current = false;
+      }, 1000);
+    }
+  };
+  const onReleaseSubmit = () => {
+    clearTimeout(pressTimerRef.current);
+    pressingSubmitRef.current = false;
+  };
 
   const succeed = () => {
     setStatus('success');
@@ -91,6 +108,9 @@ function ContactForm() {
       if (status === 'error' || status === 'invalid') setStatus('idle');
     },
     onBlur: (e) => {
+      // A message appearing under the field would shift the button away mid-click and swallow the click;
+      // the submit handler validates every field anyway
+      if (pressingSubmitRef.current) return;
       if (e.target.value.trim()) {
         setErrors((errs) => ({ ...errs, [name]: validateField(name, e.target.value) }));
       }
@@ -139,6 +159,8 @@ function ContactForm() {
     <form
       noValidate
       onSubmit={onSubmit}
+      onPointerDownCapture={onPressSubmit}
+      onClickCapture={onReleaseSubmit}
       aria-label="Contact form"
       className="relative space-y-4 sm:space-y-5 rounded-luxe border border-sand bg-white/70 p-5 sm:p-7 md:p-10 shadow-card"
     >
@@ -240,7 +262,7 @@ function ContactForm() {
             className="flex items-start gap-3 rounded-luxe border border-emerald-700/40 bg-emerald-50 px-5 py-4 text-sm text-emerald-900"
           >
             <CheckCircle2 aria-hidden="true" strokeWidth={1.75} className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
-            <p>
+            <p className="min-w-0 break-words">
               <strong className="block font-semibold">{f.successTitle}</strong>
               {f.success}
             </p>
@@ -254,7 +276,7 @@ function ContactForm() {
           className="flex items-start gap-3 rounded-luxe border border-red-800/40 bg-red-50 px-5 py-4 text-sm text-red-900"
         >
           <XCircle aria-hidden="true" strokeWidth={1.75} className="mt-0.5 h-5 w-5 shrink-0 text-red-800" />
-          <p>
+          <p className="min-w-0 break-words">
             <strong className="block font-semibold">{f.failureTitle}</strong>
             {failure}
           </p>

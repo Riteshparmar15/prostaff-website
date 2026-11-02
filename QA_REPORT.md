@@ -3,13 +3,29 @@
 Date: 31 October 2026, updated 1 and 2 November 2026 · Scope: the full website in this repository, tested as a local production build and, since 2 November, as the live site at https://prostaffconsulting.com
 
 **Related documents**
-- `TEST_CASES.md`: all 128 test cases and their results.
-- `BUG_REPORT.md`: 22 findings, with fixes and owner questions.
+- `TEST_CASES.md`: all 140 test cases and their results.
+- `BUG_REPORT.md`: 27 findings, with fixes and owner questions.
 - `TEST_EXECUTION_REPORT.md`: counts, pass rate, decision and commands.
 
 ## Outcome
 
-**READY WITH DOCUMENTED LIMITATIONS.** Pass rate is 99.2% across 128 test cases: 120 passed, 1 failed, 3 blocked and 4 not run (updated 2 November 2026, after the site went live and was tested on its real URL).
+**READY WITH DOCUMENTED LIMITATIONS, on three conditions.** Pass rate is 99.2% across 140 test cases: 128 passed, 1 failed, 4 blocked and 7 not run (independent audit, 2 November 2026, evening).
+
+**What the independent audit found.** The contact-form work earlier on 2 November (Netlify Forms, new validation, new inbox) introduced five defects, BUG-023 to BUG-027:
+- A single click on "Send Message" could be swallowed after typing an invalid value (P2).
+- The failure message overflowed the form at 320px (P3).
+- The live e2e suite would have sent real enquiries through Netlify Forms (P2, caught before it ran live).
+- The privacy policy named the wrong form processors (P2).
+- Surnames written as an initial were rejected (P3).
+
+All five are fixed in the repository with regression tests. **They are not deployed** (the audit was told not to deploy), so the live site `cbf8b68` still has four of them.
+
+**Conditions for handover**
+1. Push the committed fixes, then re-run `npm run test:live` (TC-LIVE-022).
+2. Owner decisions: BUG-011 (legal entity name, P1), BUG-013 (logo permission and claims) and approval of the privacy wording (BUG-026).
+3. The manual checks below.
+
+The summary that follows is the earlier 2 November (daytime) summary and is kept for history.
 
 The live site, checked on 2 November:
 - Served by Netlify over HTTPS with a valid Let's Encrypt certificate (TLS 1.2 and 1.3 only); `http://` and `www` redirect to `https://prostaffconsulting.com/`.
@@ -49,7 +65,7 @@ Still needed from the owner:
   - Self-hosted fonts.
   - Build-time prerendering (`src/entry-server.jsx` and `scripts/prerender.mjs`) so the HTML contains content before JavaScript runs.
 - **Hosting:** live on Netlify at `https://prostaffconsulting.com`, built from the `master` branch on GitHub (every push redeploys). `npm run build` produces a root-based (`/`) `dist/`, `netlify.toml` holds the build settings and `public/_headers` the security and cache headers. DNS is at GoDaddy (A record to Netlify, `www` CNAME). `npm run deploy:ghpages` still exists for GitHub Pages under `/prostaff-website/`, but nothing is published there now.
-- **Contact form:** sends via EmailJS when the `VITE_EMAILJS_*` variables are set. Otherwise it sends to FormSubmit's AJAX endpoint, which `VITE_CONTACT_ENDPOINT` can override. When `VITE_SHEETS_ENDPOINT` is set, each enquiry is also saved to the owner's Google Sheet by `google-apps-script/Code.gs`, and the visitor sees success if either channel accepts it. It has a honeypot field for spam, and requests time out after 15 seconds.
+- **Contact form** (code in `src/lib/enquiry.js` and `src/components/Contact.jsx`): on Netlify builds it posts to Netlify Forms first (declared as the hidden `enquiry` form in `index.html`; Netlify emails each enquiry to `adarsh.dubeyenterprises@gmail.com` and stores it on its Forms page). If Netlify does not accept it within 8 seconds, it uses the backup: EmailJS when the `VITE_EMAILJS_*` variables are set, otherwise FormSubmit's AJAX endpoint (which `VITE_CONTACT_ENDPOINT` can override), with a 20-second timeout. When `VITE_SHEETS_ENDPOINT` is set, each enquiry is also saved to a Google Sheet, but that channel is **not enabled** on the live site. The visitor sees success as soon as one channel accepts it. It has a honeypot field, per-field validation with specific messages, and a "Message sent" or "Message not sent" panel with the cause. Netlify Forms is switched on only when the build runs on Netlify (`vite.config.js`), so local builds and tests use FormSubmit.
 - **Content:** all copy and contact details are in `src/data/content.js`.
 
 ## Page and feature inventory
@@ -111,6 +127,17 @@ Still needed from the owner:
 | `src/components/Contact.jsx` | `data?.message` so an unexpected reply gives the normal failure message | BUG-022 |
 | `playwright.live.config.js`, `scripts/live-audit.mjs` (new), `e2e/fixtures.js`, `eslint.config.js`, `package.json`, `.gitignore` | Run the e2e specs against a live URL, a read-only live audit, request checks that follow the configured host, a `test:live` script | — |
 
+Changes in the 2 Nov independent audit (committed, not deployed):
+
+| File | Change | Bug |
+|---|---|---|
+| `src/components/Contact.jsx` | Blur validation is skipped while the submit button is pressed; message text wraps | BUG-023, BUG-024 |
+| `e2e/fixtures.js` | Any POST to `/` (Netlify Forms) is answered with a mocked 404 | BUG-025 |
+| `public/privacy.html` | Names Netlify and FormSubmit; removes the Google Sheet claim; dated 2 Nov | BUG-026 |
+| `src/lib/enquiry.js` | Surname may be one letter; curly apostrophe allowed | BUG-027 |
+| `src/test/enquiry.test.js` (new) | 46 tests: field rules, failure messages, payload integrity | — |
+| `e2e/contact.spec.js`, `e2e/layout-a11y.spec.js` | Live Netlify-first test, two click tests, form states at 6 widths | — |
+
 Visible design changes:
 - **BUG-006:** italic gold heading words on light backgrounds are a slightly deeper gold, needed to meet WCAG AA contrast.
 - **BUG-008:** a small pause/play button under the brand logo strip (owner-approved).
@@ -118,9 +145,10 @@ Visible design changes:
 Everything else keeps the existing design, content and behaviour.
 
 ## Manual checks still needed
-1. Real devices: iPhone (Safari) and Android (Chrome). Firefox, Edge and Safari's engine (WebKit) are covered by automated tests, but real Safari is not.
+1. Real devices: iPhone (Safari) and Android (Chrome). In particular, tap "Send Message" once right after typing an invalid value (BUG-023) on a real phone. Edge and Chrome are covered by automated tests; Firefox and Safari's engine (WebKit) were not re-run in the 2 Nov audit.
 2. Full keyboard-only walkthrough and a screen reader pass (NVDA or VoiceOver).
-3. Confirm that the "Final Check" test enquiry sent on 2 November arrived, and that this is the inbox that should receive real enquiries.
+3. Check the inbox and the Netlify Forms page after the audit: delete the test enquiries ("QA Live Test", "QA Netlify Test", "QA Offline Test") and confirm no "QA Automation" enquiries arrived from the live e2e run (they should not have). After deploying, send one real enquiry and confirm it arrives.
+3a. Confirm Netlify's spam filter and the 100-submissions-a-month free limit are acceptable (TC-FORM-031).
 4. On the live site:
    - Check the share preview with a social debugger (Facebook Sharing Debugger, LinkedIn Post Inspector).
    - Confirm the LinkedIn link opens the official page.

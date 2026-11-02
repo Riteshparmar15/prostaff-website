@@ -1,7 +1,7 @@
 import { contact } from '../data/content';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const NAME_RE = /^\p{L}[\p{L}\p{M} .'-]*$/u;
+const NAME_RE = /^\p{L}[\p{L}\p{M} .'’-]*$/u;
 const PHONE_CHARS_RE = /^\+?[\d\s()-]+$/;
 
 export const REQUIRED = ['firstName', 'lastName', 'email', 'profile', 'message'];
@@ -22,7 +22,8 @@ export function validateField(name, rawValue) {
   switch (name) {
     case 'firstName':
     case 'lastName':
-      if (value.length < 2) return errors.nameShort;
+      // A surname written as an initial is common ("Raman S"), so only the first name needs 2 letters
+      if (name === 'firstName' && value.length < 2) return errors.nameShort;
       if (!NAME_RE.test(value)) return errors.nameInvalid;
       return undefined;
     case 'email':

@@ -39,6 +39,11 @@ Test date: 31 October 2026, updated 1 and 2 November 2026. Test case IDs refer t
 | BUG-020 | P2 | Fixed | Contact form could hang on "Sending…" or confirm an enquiry that was never accepted |
 | BUG-021 | P3 | Fixed (2 Nov) | Footer "Privacy Policy" and "Terms of Use" links were 15px tall (WCAG 2.2 SC 2.5.8 asks for 24px) |
 | BUG-022 | P3 | Fixed (2 Nov) | An unexpected reply from the form service threw a confusing error instead of the normal failure message |
+| BUG-023 | P2 | Fixed in repo, **not deployed** | One click on "Send Message" did nothing if the last field typed was invalid (blur validation moved the button mid-click) |
+| BUG-024 | P3 | Fixed in repo, **not deployed** | The "Message not sent" text ran past the form edge at 320px |
+| BUG-025 | P2 | Fixed (never ran live) | The live e2e suite would have sent real enquiries through Netlify Forms |
+| BUG-026 | P2 | Fixed in repo, **not deployed** (wording needs approval) | Privacy policy named the wrong form processors and claimed a Google Sheet copy that is not enabled |
+| BUG-027 | P3 | Fixed in repo, **not deployed** | Names were over-strict: a surname written as an initial or a curly apostrophe was rejected |
 
 ---
 
@@ -176,6 +181,42 @@ axe also reports `label-content-name-mismatch` on the five Industry cards. Each 
 
 ---
 
+## Found by the independent audit (2 November, evening)
+
+BUG-023 and BUG-027 come from the form changes made earlier on 2 November (commit `0072b4e`), and BUG-024 and BUG-026 were in the same build. All four are live now. The fixes are committed in the repository and have **not** been deployed, as instructed. The live site keeps them until the owner pushes.
+
+### BUG-023: A click on "Send Message" was swallowed (P2), fixed in repo
+- **Test:** TC-FORM-028 (found by a new e2e test failing at every width)
+- **Steps:** type a too-short message (for example "Hi") in the last field, then click "Send Message" once with the mouse.
+- **Actual:** nothing happens. The field loses focus, its error message appears and pushes the button down before the mouse is released, so the browser drops the click. The visitor must click again.
+- **Cause:** the on-blur validation added with the new form (`0072b4e`). The earlier live checks used scripted clicks, which do not move between press and release, so they missed it.
+- **Fix:** `src/components/Contact.jsx` skips blur validation while the submit button is being pressed. Submit still validates every field, so nothing is lost.
+- **Regression tests:** two e2e tests in `e2e/contact.spec.js` (invalid last field, then valid last field), passing in Chrome desktop, Chrome mobile emulation and Edge. **Not tested:** a real finger on a real phone, or Safari.
+
+### BUG-024: Failure message overflowed the form at 320px (P3), fixed in repo
+- **Test:** TC-RESP-010
+- The "Message not sent" and "Message sent successfully" text could not wrap. The long email address in the message pushed it 41px past the form's right edge (the page itself did not scroll sideways).
+- **Fix:** `min-w-0 break-words` on the message text in `Contact.jsx`.
+- **Regression tests:** six widths (320, 375, 768, 1024, 1366, 1920) in three browser setups, checking the invalid, failure and success states.
+
+### BUG-025: The live e2e suite could have sent real enquiries (P2), fixed before it ran live
+- **Test:** TC-FORM-030
+- `e2e/fixtures.js` intercepted FormSubmit, EmailJS and Google Sheets but not the new Netlify Forms request (a POST to `/`). Running `npm run test:live` would have sent a real enquiry from every form test.
+- **Found by:** reading the fixture before running the live suite. The audit's automated runs were meant not to send real email (the new live test asserts the Netlify POST is intercepted), but the inbox was not re-checked afterwards.
+- **Fix:** the fixture now answers any POST to `/` with a mocked 404, so the form uses its backup channel, which is also mocked.
+
+### BUG-026: Privacy policy described the wrong processors (P2), fixed in repo
+- **Test:** TC-CNT-006
+- The policy said enquiries go through FormSubmit and that a copy is saved to the company's Google Sheet. Enquiries now go through Netlify Forms first (FormSubmit is only the backup), and the live site does not contain the Google Sheet channel at all.
+- **Fix:** `public/privacy.html` now names Netlify as the receiver and FormSubmit as the backup, drops the Sheet claim and is dated 2 November 2026. **Owner or legal approval of the wording is still needed.**
+
+### BUG-027: Name checks were too strict (P3), fixed in repo
+- **Test:** TC-FORM-026
+- The first version required 2 letters in both name fields and only accepted a straight apostrophe, which rejects surnames written as an initial ("Raman S") and names like O’Brien.
+- **Fix:** only the first name needs 2 letters; the curly apostrophe is allowed. Covered by the 46 tests in `src/test/enquiry.test.js`.
+
+---
+
 ## Resolved or mostly resolved after going live
 
 ### BUG-010: Site URLs pointed to a domain that did not load (P1), fixed 2 November
@@ -185,13 +226,13 @@ axe also reports `label-content-name-mismatch` on the five Industry cards. Each 
 - **Verified live:** HTTP and `www` redirect correctly, the certificate is valid to 2027-01-30, TLS 1.2 and 1.3 only, every sitemap URL returns 200.
 - **Note:** GitHub Pages no longer serves the domain. The old `gh-pages` branch was deleted from GitHub at the owner's request.
 
-### BUG-012: Enquiry inbox and delivery (now P2)
-- **Tests:** TC-FORM-014, TC-FORM-016, TC-LIVE-018 (pass); TC-FORM-023 (blocked)
-- **Resolved:** FormSubmit is activated for `ritesh.parmar1599@gmail.com`, a test email arrived in that inbox (the owner's screenshot, 2 Nov 00:13), and the live form's request is accepted by FormSubmit with all six fields in the payload.
+### BUG-012: Enquiry inbox and delivery (now P2), updated in the 2 Nov audit
+- **Tests:** TC-FORM-014, TC-FORM-016, TC-FORM-025, TC-LIVE-018 (pass); TC-FORM-023 (blocked)
+- **Resolved:** the owner moved the inbox to the business address `adarsh.dubeyenterprises@gmail.com`. Enquiries now go through Netlify Forms first (about 0.5 s) with FormSubmit as the automatic backup. In this session, a FormSubmit email (12:25 and 12:29) and a Netlify Forms email (12:37) were seen in that inbox, and the Netlify email notification is configured in the Netlify dashboard.
 - **Still needs the owner:**
-  - Confirm that this personal inbox is the one that should receive enquiries. The public business email on the site is `adarsh.dubeyenterprises@gmail.com`; if the business inbox should receive them, activate FormSubmit for that address and change `company.enquiryInbox`.
-  - The free FormSubmit emails include a "Sponsor" advertisement block (visible in the owner's screenshot). Removing it likely needs a paid FormSubmit plan or the EmailJS route (`.env.example` has the three keys); this has not been verified.
-  - Optionally deploy the Google Sheets script and send one test enquiry (TC-FORM-023).
+  - Netlify's free plan accepts 100 form submissions a month. Beyond that the form falls back to FormSubmit (slower, and its emails carry a "Sponsor" advertisement block).
+  - Netlify's spam filter is not tested (TC-FORM-031). Check the spam list in the Netlify Forms page if an enquiry seems to be missing.
+  - The Google Sheets channel is not enabled on the live site (TC-FORM-023). Optional.
 
 ---
 
