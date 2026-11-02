@@ -319,10 +319,13 @@ describe('contact form on Netlify', () => {
       subject: 'New website enquiry (Other) — Asha Mehta',
       name: 'Asha Mehta',
       email: 'asha@example.com',
-      phone: 'Not provided',
-      profile: 'Other',
-      message: 'Need boutique staff.',
     });
+    const letter = Object.fromEntries(new URLSearchParams(init.body)).Enquiry;
+    expect(letter).toContain('PROSTAFF SOLUTION');
+    expect(letter).toContain('Asha Mehta');
+    expect(letter).toContain('asha@example.com');
+    expect(letter).toContain('Need boutique staff.');
+    expect(letter).toContain('Other');
   });
 
   it('falls back to FormSubmit when Netlify rejects the submission', async () => {

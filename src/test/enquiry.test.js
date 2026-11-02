@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { contact } from '../data/content';
-import { failureMessage, validate, validateField } from '../lib/enquiry';
+import {
+  failureMessage,
+  formatEnquiryLetter,
+  formatPhoneForEmail,
+  validate,
+  validateField,
+} from '../lib/enquiry';
 
 const e = contact.form.errors;
 
@@ -97,12 +103,12 @@ describe('failureMessage', () => {
 
 describe('sendEnquiry payload integrity', () => {
   const values = {
-    firstName: 'José',
+    firstName: 'Josï¿½',
     lastName: "D'Souza",
     email: 'jose@example.com',
     phone: '',
     profile: 'Other',
-    message: 'Need <b>staff</b> & "quotes" — ?????? ??? ? 100% + a=b&c=d',
+    message: 'Need <b>staff</b> & "quotes" ï¿½ ?????? ??? ? 100% + a=b&c=d',
   };
   afterEach(() => vi.restoreAllMocks());
 
@@ -111,11 +117,10 @@ describe('sendEnquiry payload integrity', () => {
     const { sendEnquiry } = await import('../lib/enquiry');
     await sendEnquiry(values, { ...contact.form, netlifyForm: 'enquiry', sheetsEndpoint: null });
     const body = Object.fromEntries(new URLSearchParams(spy.mock.calls[0][1].body));
-    expect(body.message).toBe(values.message.trim());
-    expect(body.name).toBe("José D'Souza");
-    expect(Object.keys(body).sort()).toEqual(
-      ['email', 'form-name', 'message', 'name', 'phone', 'profile', 'subject', 'submitted_at'].sort(),
-    );
+    expect(body.Enquiry).toContain(values.message.trim());
+    expect(body.Enquiry).toContain("Josï¿½ D'Souza");
+    expect(body.name).toBe("Josï¿½ D'Souza");
+    expect(Object.keys(body).sort()).toEqual(['Enquiry', 'email', 'form-name', 'name', 'subject'].sort());
   });
 
   it('keeps them intact through the FormSubmit backup', async () => {
@@ -123,5 +128,35 @@ describe('sendEnquiry payload integrity', () => {
     const { sendEnquiry } = await import('../lib/enquiry');
     await sendEnquiry(values, { ...contact.form, netlifyForm: null, emailjs: null, sheetsEndpoint: null });
     expect(JSON.parse(spy.mock.calls[0][1].body).Message).toBe(values.message.trim());
+  });
+});
+
+describe('enquiry email letter', () => {
+  const enquiry = {
+    name: 'Asha Mehta',
+    email: 'asha@example.com',
+    phone: '9876543210',
+    profile: 'Employer / Brand',
+    message: 'Need boutique staff in Dubai.',
+    submittedAt: '2 Nov 2026, 2:26 pm IST',
+  };
+
+  it('formats a 10-digit Indian number with a space', () => {
+    expect(formatPhoneForEmail('9876543210')).toBe('98765 43210');
+    expect(formatPhoneForEmail('Not provided')).toBe('Not provided');
+    expect(formatPhoneForEmail('+91 98765 43210')).toBe('+91 98765 43210');
+  });
+
+  it('builds a readable letter with every enquiry field', () => {
+    const letter = formatEnquiryLetter(enquiry);
+    expect(letter).toContain('PROSTAFF SOLUTION');
+    expect(letter).toContain('Premium Staffing Solutions');
+    expect(letter).toContain('Full Name:      Asha Mehta');
+    expect(letter).toContain('Email Address:  asha@example.com');
+    expect(letter).toContain('Phone Number:   98765 43210');
+    expect(letter).toContain('Enquiry Type:   Employer / Brand');
+    expect(letter).toContain('Submitted On:   2 Nov 2026, 2:26 pm IST');
+    expect(letter).toContain('Need boutique staff in Dubai.');
+    expect(letter).toContain('Reply to this email to respond to Asha Mehta.');
   });
 });

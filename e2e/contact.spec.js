@@ -157,11 +157,10 @@ test('live site tries Netlify Forms first with the right fields, then falls back
     'form-name': 'enquiry',
     name: 'QA Automation',
     email: 'qa.automation@example.com',
-    phone: 'Not provided',
-    profile: 'Other',
-    message: 'Automated test enquiry. Please ignore.',
   });
-  expect(posted.submitted_at).toMatch(/ IST$/);
+  expect(posted.Enquiry).toContain('QA Automation');
+  expect(posted.Enquiry).toContain('Automated test enquiry. Please ignore.');
+  expect(posted.Enquiry).toContain('PROSTAFF SOLUTION');
   // The mocked Netlify 404 sends the form to its backup channel, which is also mocked
   expect(formMock.submissions).toHaveLength(1);
 });

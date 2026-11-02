@@ -65,6 +65,51 @@ export function buildEnquiry(values) {
   };
 }
 
+/** Phone number as it should appear in the enquiry email. */
+export function formatPhoneForEmail(phone) {
+  if (!phone || phone === 'Not provided') return 'Not provided';
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 10) return `${digits.slice(0, 5)} ${digits.slice(5)}`;
+  if (digits.length === 12 && digits.startsWith('91')) {
+    return `+91 ${digits.slice(2, 7)} ${digits.slice(7)}`;
+  }
+  return phone;
+}
+
+/**
+ * One readable letter for the inbox. Netlify Forms can only dump field names and
+ * values, so this is the body we send (instead of a raw list of inputs).
+ */
+export function formatEnquiryLetter(enquiry) {
+  const phone = formatPhoneForEmail(enquiry.phone);
+  return [
+    'PROSTAFF SOLUTION',
+    'Premium Staffing Solutions',
+    'prostaffconsulting.com',
+    '',
+    'NEW WEBSITE ENQUIRY',
+    '────────────────────────',
+    '',
+    `Full Name:      ${enquiry.name}`,
+    `Email Address:  ${enquiry.email}`,
+    `Phone Number:   ${phone}`,
+    `Enquiry Type:   ${enquiry.profile}`,
+    `Submitted On:   ${enquiry.submittedAt}`,
+    '',
+    'MESSAGE',
+    '────────────────────────',
+    enquiry.message,
+    '',
+    '────────────────────────',
+    `Reply to this email to respond to ${enquiry.name}.`,
+    'Prostaff · A Division of Dubey Enterprises',
+  ].join('\n');
+}
+
+export function enquirySubject(enquiry) {
+  return `New website enquiry (${enquiry.profile}) — ${enquiry.name}`;
+}
+
 /** Resolves as soon as one delivery channel confirms the enquiry; rejects only when every channel fails. */
 export async function sendEnquiry(values, form = contact.form) {
   const enquiry = buildEnquiry(values);
@@ -96,13 +141,10 @@ async function sendViaNetlify(enquiry, formName) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       'form-name': formName,
-      subject: `New website enquiry (${enquiry.profile}) — ${enquiry.name}`,
+      subject: enquirySubject(enquiry),
       name: enquiry.name,
       email: enquiry.email,
-      phone: enquiry.phone,
-      profile: enquiry.profile,
-      message: enquiry.message,
-      submitted_at: enquiry.submittedAt,
+      Enquiry: formatEnquiryLetter(enquiry),
     }).toString(),
   });
   if (!res.ok) throw new Error(`Netlify Forms: request failed (${res.status})`);
@@ -150,11 +192,11 @@ async function sendViaFormEndpoint(enquiry, endpoint) {
     body: JSON.stringify({
       'Full Name': enquiry.name,
       'Email Address': enquiry.email,
-      'Phone Number': enquiry.phone,
+      'Phone Number': formatPhoneForEmail(enquiry.phone),
       'Enquiry Type': enquiry.profile,
       Message: enquiry.message,
       'Submitted On': enquiry.submittedAt,
-      _subject: `New website enquiry (${enquiry.profile}) — ${enquiry.name}`,
+      _subject: enquirySubject(enquiry),
       _replyto: enquiry.email,
       _template: 'table',
       _captcha: 'false',
