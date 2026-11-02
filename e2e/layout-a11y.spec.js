@@ -119,7 +119,7 @@ test.describe('contact form states fit every screen width', () => {
       await fits();
 
       // Success panel
-      formMock.reply = { status: 200, json: { success: 'true' } };
+      formMock.reply = { status: 200, json: { ok: true } };
       await form.getByRole('button', { name: 'Send Message' }).click();
       await expect(form.getByText('Message sent successfully')).toBeVisible();
       await fits();

@@ -37,6 +37,9 @@ export const brand = {
   monogram: 'PS',
 };
 
+// Paste the Apps Script web app URL here (it is public by design), e.g. 'https://script.google.com/macros/s/XXXX/exec'
+const GOOGLE_SCRIPT_URL = '';
+
 const BASE = (import.meta.env?.BASE_URL || '/').replace(/\/+$/, '') + '/';
 export const asset = (path) => `${BASE}${path.replace(/^\/+/, '')}`;
 
@@ -545,24 +548,9 @@ export const contact = {
       phoneInvalid: 'Please enter a valid phone number with 10 to 15 digits.',
       messageShort: 'Please write at least 10 characters so we can help you.',
     },
-    // Set at build time on Netlify (see vite.config.js); the form definition lives in index.html
-    netlifyForm: import.meta.env.VITE_NETLIFY_FORM || null,
-    // Branded emails via EmailJS when all three keys are set in .env (see .env.example)
-    emailjs:
-      import.meta.env.VITE_EMAILJS_SERVICE_ID &&
-      import.meta.env.VITE_EMAILJS_TEMPLATE_ID &&
-      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-        ? {
-            serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID,
-            templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-            publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-          }
-        : null,
-    // Otherwise FormSubmit emails each submission to the inbox. Override with VITE_CONTACT_ENDPOINT.
-    endpoint:
-      import.meta.env.VITE_CONTACT_ENDPOINT || `https://formsubmit.co/ajax/${company.enquiryInbox}`,
-    // Also saves each enquiry to the owner's Google Sheet when set (see google-apps-script/Code.gs)
-    sheetsEndpoint: import.meta.env.VITE_SHEETS_ENDPOINT || null,
+    // Google Apps Script web app URL ending in /exec (setup steps at the top of google-apps-script/Code.gs).
+    // It saves each enquiry to the Google Sheet and emails it to the inbox as a table.
+    sheetsEndpoint: import.meta.env.VITE_SHEETS_ENDPOINT || GOOGLE_SCRIPT_URL || null,
   },
 };
 

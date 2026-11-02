@@ -56,7 +56,14 @@ describe('hero', () => {
 });
 
 describe('contact form', () => {
+  const SCRIPT = 'https://script.google.com/macros/s/test/exec';
   const form = () => screen.getByRole('form', { name: 'Contact form' });
+  beforeEach(() => {
+    contact.form.sheetsEndpoint = SCRIPT;
+  });
+  afterEach(() => {
+    contact.form.sheetsEndpoint = null;
+  });
 
   const fillValid = async (user) => {
     const f = within(form());
@@ -77,27 +84,56 @@ describe('contact form', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('posts valid enquiries to the configured endpoint', async () => {
+  it('posts valid enquiries once to the Google Apps Script', async () => {
     const user = userEvent.setup();
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(new Response('{}', { status: 200 }));
+      .mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
     render(<App />);
     await fillValid(user);
     await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
-    expect(fetchSpy).toHaveBeenCalledWith(
-      contact.form.endpoint,
-      expect.objectContaining({ method: 'POST' }),
-    );
-    const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-    expect(body).toMatchObject({ 'Full Name': 'Asha Mehta', _replyto: 'asha@example.com' });
     expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe(SCRIPT);
+    expect(init.method).toBe('POST');
+    expect(init.headers['Content-Type']).toBe('text/plain;charset=utf-8');
+    expect(JSON.parse(init.body)).toMatchObject({
+      name: 'Asha Mehta',
+      email: 'asha@example.com',
+      phone: 'Not provided',
+      profile: contact.form.fields.profile.options[0],
+      message: 'We need boutique staff.',
+      company_website: '',
+    });
   });
 
-  it('shows the failure message when the endpoint reports success "false"', async () => {
+  it('treats a non-JSON reply (e.g. a Google sign-in page) as a failure', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html>Sign in</html>', { status: 200 }));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(<App />);
+    await fillValid(user);
+    await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
+    expect(await within(form()).findByRole('alert')).toHaveTextContent(contact.form.failures.server);
+  });
+
+  it('shows a failure when the Google Apps Script URL is not set', async () => {
+    contact.form.sheetsEndpoint = null;
+    const user = userEvent.setup();
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(<App />);
+    await fillValid(user);
+    await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
+    expect(await within(form()).findByRole('alert')).toHaveTextContent(contact.form.failureTitle);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('shows the failure message when the script reports ok false', async () => {
     const user = userEvent.setup();
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response('{"success":"false","message":"This form needs Activation."}', { status: 200 }),
+      new Response('{"ok":false,"error":"save-failed"}', { status: 200 }),
     );
     vi.spyOn(console, 'error').mockImplementation(() => {});
     render(<App />);
@@ -153,7 +189,7 @@ describe('contact form', () => {
 
   it('accepts a formatted Indian phone number', async () => {
     const user = userEvent.setup();
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"success":"true"}', { status: 200 }));
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
     render(<App />);
     await fillValid(user);
     await user.type(within(form()).getByLabelText(/Phone/), '+91 98765-43210');
@@ -198,159 +234,6 @@ describe('contact form', () => {
     container.querySelector('input[name="company_website"]').value = 'spam';
     await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
     expect(fetchSpy).not.toHaveBeenCalled();
-  });
-});
-
-describe('contact form with Google Sheets enabled', () => {
-  const SHEETS = 'https://script.google.com/macros/s/test/exec';
-  const form = () => screen.getByRole('form', { name: 'Contact form' });
-  const ok = (body) => () => Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
-
-  beforeEach(() => {
-    contact.form.sheetsEndpoint = SHEETS;
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-  afterEach(() => {
-    contact.form.sheetsEndpoint = null;
-  });
-
-  const mockChannels = ({ formsubmit, sheets }) =>
-    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => (url === SHEETS ? sheets() : formsubmit()));
-
-  const submitValid = async () => {
-    const user = userEvent.setup({ delay: null });
-    render(<App />);
-    const f = within(form());
-    await user.type(f.getByLabelText(/First Name/), 'Asha');
-    await user.type(f.getByLabelText(/Last Name/), 'Mehta');
-    await user.type(f.getByLabelText(/Email Address/), 'asha@example.com');
-    await user.selectOptions(f.getByLabelText(/I am a/), 'Other');
-    await user.type(f.getByLabelText(/Message/), 'Need staff.');
-    await user.click(f.getByRole('button', { name: contact.form.submit }));
-  };
-
-  it('sends every enquiry to both FormSubmit and the Sheet', async () => {
-    const fetchSpy = mockChannels({ formsubmit: ok({ success: 'true' }), sheets: ok({ ok: true }) });
-    await submitValid();
-    expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-
-    const [, sheetsInit] = fetchSpy.mock.calls.find(([url]) => url === SHEETS);
-    expect(sheetsInit.headers['Content-Type']).toBe('text/plain;charset=utf-8');
-    expect(JSON.parse(sheetsInit.body)).toMatchObject({
-      name: 'Asha Mehta',
-      email: 'asha@example.com',
-      phone: 'Not provided',
-      profile: 'Other',
-      message: 'Need staff.',
-      company_website: '',
-    });
-  });
-
-  it('still confirms when only the Sheet saves it', async () => {
-    mockChannels({ formsubmit: () => Promise.reject(new TypeError('Failed to fetch')), sheets: ok({ ok: true }) });
-    await submitValid();
-    expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
-  });
-
-  it('still confirms when only FormSubmit sends it', async () => {
-    mockChannels({ formsubmit: ok({ success: 'true' }), sheets: ok({ ok: false, error: 'save-failed' }) });
-    await submitValid();
-    expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
-  });
-
-  it('shows the failure message when both channels fail', async () => {
-    mockChannels({
-      formsubmit: ok({ success: 'false', message: 'This form needs Activation.' }),
-      sheets: ok({ ok: false, error: 'rate-limited' }),
-    });
-    await submitValid();
-    expect(await within(form()).findByRole('alert')).toHaveTextContent(contact.form.failures.server);
-    expect(within(form()).queryByRole('status')).not.toBeInTheDocument();
-  });
-
-  it('treats a non-JSON Sheet reply as a failure', async () => {
-    mockChannels({
-      formsubmit: () => Promise.reject(new TypeError('Failed to fetch')),
-      sheets: () => Promise.resolve(new Response('<html>Sign in</html>', { status: 200 })),
-    });
-    await submitValid();
-    expect(await within(form()).findByRole('alert')).toHaveTextContent(contact.form.failures.network);
-  });
-});
-
-describe('contact form on Netlify', () => {
-  const form = () => screen.getByRole('form', { name: 'Contact form' });
-  const netlifyCall = ([url]) => url === '/';
-
-  beforeEach(() => {
-    contact.form.netlifyForm = 'enquiry';
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-  afterEach(() => {
-    contact.form.netlifyForm = null;
-  });
-
-  const submitValid = async () => {
-    const user = userEvent.setup({ delay: null });
-    render(<App />);
-    const f = within(form());
-    await user.type(f.getByLabelText(/First Name/), 'Asha');
-    await user.type(f.getByLabelText(/Last Name/), 'Mehta');
-    await user.type(f.getByLabelText(/Email Address/), 'asha@example.com');
-    await user.selectOptions(f.getByLabelText(/I am a/), 'Other');
-    await user.type(f.getByLabelText(/Message/), 'Need boutique staff.');
-    await user.click(f.getByRole('button', { name: contact.form.submit }));
-  };
-
-  it('posts to Netlify Forms, then only queues the table email when Netlify accepts it', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('ok', { status: 200 }));
-    await submitValid();
-    expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.successTitle);
-    expect(fetchSpy.mock.calls.map(([url]) => url)).toEqual(['/', contact.form.endpoint]);
-    expect(fetchSpy.mock.calls[1][1].keepalive).toBe(true);
-
-    const [url, init] = fetchSpy.mock.calls[0];
-    expect(url).toBe('/');
-    expect(init.headers['Content-Type']).toBe('application/x-www-form-urlencoded');
-    expect(Object.fromEntries(new URLSearchParams(init.body))).toMatchObject({
-      'form-name': 'enquiry',
-      subject: 'New website enquiry (Other) — Asha Mehta',
-      name: 'Asha Mehta',
-      email: 'asha@example.com',
-      phone: 'Not provided',
-      profile: 'Other',
-      message: 'Need boutique staff.',
-    });
-  });
-
-  it('falls back to FormSubmit when Netlify rejects the submission', async () => {
-    const fetchSpy = vi
-      .spyOn(globalThis, 'fetch')
-      .mockImplementation((...args) =>
-        Promise.resolve(
-          netlifyCall(args)
-            ? new Response('Not found', { status: 404 })
-            : new Response('{"success":"true"}', { status: 200 }),
-        ),
-      );
-    await submitValid();
-    expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.successTitle);
-    expect(fetchSpy.mock.calls.map(([url]) => url)).toEqual(['/', contact.form.endpoint]);
-  });
-
-  it('reports a failure only when Netlify and the backup both fail', async () => {
-    vi.spyOn(globalThis, 'fetch').mockImplementation((...args) =>
-      Promise.resolve(
-        netlifyCall(args)
-          ? new Response('Server error', { status: 500 })
-          : new Response('{"success":"false"}', { status: 200 }),
-      ),
-    );
-    await submitValid();
-    expect(await within(form()).findByRole('alert')).toHaveTextContent(contact.form.failures.server);
   });
 });
 

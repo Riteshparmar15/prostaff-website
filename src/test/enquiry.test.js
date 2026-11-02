@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { contact } from '../data/content';
-import { failureMessage, validate, validateField } from '../lib/enquiry';
-import { formatPhoneForEmail, tableEmailPayload } from '../lib/tableEmail';
+import { failureMessage, sendEnquiry, validate, validateField } from '../lib/enquiry';
 
 const e = contact.form.errors;
 
@@ -106,83 +105,25 @@ describe('sendEnquiry payload integrity', () => {
     message: 'Need <b>staff</b> & "quotes" � ?????? ??? ? 100% + a=b&c=d',
   };
   afterEach(() => vi.restoreAllMocks());
+  const form = { ...contact.form, sheetsEndpoint: 'https://script.google.com/macros/s/test/exec' };
 
-  it('keeps Unicode, HTML characters and URL syntax intact through Netlify Forms', async () => {
-    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('ok', { status: 200 }));
-    const { sendEnquiry } = await import('../lib/enquiry');
-    await sendEnquiry(values, { ...contact.form, netlifyForm: 'enquiry', sheetsEndpoint: null });
-    const body = Object.fromEntries(new URLSearchParams(spy.mock.calls[0][1].body));
+  it('keeps Unicode, HTML characters and URL syntax intact in the Apps Script request', async () => {
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
+    await sendEnquiry(values, form);
+    const body = JSON.parse(spy.mock.calls[0][1].body);
     expect(body.message).toBe(values.message.trim());
-    expect(body.name).toBe("Jos� D'Souza");
+    expect(body.name).toBe(`${values.firstName} ${values.lastName}`);
     expect(Object.keys(body).sort()).toEqual(
-      ['email', 'form-name', 'message', 'name', 'phone', 'profile', 'subject', 'submitted_at'].sort(),
+      ['company_website', 'email', 'message', 'name', 'phone', 'profile', 'submittedAt'].sort(),
     );
+    expect(body.submittedAt).toMatch(/ IST$/);
   });
 
-  it('keeps them intact through the FormSubmit backup', async () => {
-    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"success":"true"}', { status: 200 }));
-    const { sendEnquiry } = await import('../lib/enquiry');
-    await sendEnquiry(values, { ...contact.form, netlifyForm: null, emailjs: null, sheetsEndpoint: null });
-    expect(JSON.parse(spy.mock.calls[0][1].body).Message).toBe(values.message.trim());
-  });
-});
-
-describe('table email', () => {
-  const enquiry = {
-    name: 'Asha Mehta',
-    email: 'asha@example.com',
-    phone: '9876543210',
-    profile: 'Employer / Brand',
-    message: 'Need boutique staff in Dubai.',
-    submittedAt: '2 Nov 2026, 2:26 pm IST',
-  };
-  afterEach(() => vi.restoreAllMocks());
-
-  it('formats a 10-digit Indian number with a space', () => {
-    expect(formatPhoneForEmail('9876543210')).toBe('98765 43210');
-    expect(formatPhoneForEmail('919876543210')).toBe('+91 98765 43210');
-    expect(formatPhoneForEmail('Not provided')).toBe('Not provided');
-    expect(formatPhoneForEmail('+971 50 123 4567')).toBe('+971 50 123 4567');
-  });
-
-  it('builds one table row per field with the table template', () => {
-    expect(tableEmailPayload(enquiry)).toEqual({
-      'Full Name': 'Asha Mehta',
-      'Email Address': 'asha@example.com',
-      'Phone Number': '98765 43210',
-      'Enquiry Type': 'Employer / Brand',
-      Message: 'Need boutique staff in Dubai.',
-      'Submitted On': '2 Nov 2026, 2:26 pm IST',
-      _subject: 'New website enquiry (Employer / Brand) — Asha Mehta',
-      _replyto: 'asha@example.com',
-      _template: 'table',
-      _captcha: 'false',
-    });
-  });
-
-  it('after Netlify accepts, queues the table email as a keepalive form post without waiting for it', async () => {
-    let finishEmail;
-    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation((url) =>
-      url === '/'
-        ? Promise.resolve(new Response('ok', { status: 200 }))
-        : new Promise((resolve) => {
-            finishEmail = resolve;
-          }),
-    );
-    const { sendEnquiry } = await import('../lib/enquiry');
-    await sendEnquiry(
-      { firstName: 'Asha', lastName: 'Mehta', email: 'asha@example.com', phone: '9876543210', profile: 'Other', message: 'Need boutique staff.' },
-      { ...contact.form, netlifyForm: 'enquiry', sheetsEndpoint: null },
-    );
-    expect(spy).toHaveBeenCalledTimes(2);
-    const [url, init] = spy.mock.calls[1];
-    expect(url).toBe(contact.form.endpoint);
-    expect(init.keepalive).toBe(true);
-    expect(init.headers).toEqual({ Accept: 'application/json' });
-    const body = Object.fromEntries(init.body);
-    expect(body._template).toBe('table');
-    expect(body['Full Name']).toBe('Asha Mehta');
-    expect(body['Phone Number']).toBe('98765 43210');
-    finishEmail(new Response('{"success":"true"}', { status: 200 }));
+  it.each([
+    ['ok false', () => new Response('{"ok":false,"error":"rate-limited"}', { status: 200 }), /rate-limited/],
+    ['HTTP 500', () => new Response('{}', { status: 500 }), /500/],
+  ])('rejects when the script answers %s', async (_, reply, message) => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply());
+    await expect(sendEnquiry(values, form)).rejects.toThrow(message);
   });
 });
