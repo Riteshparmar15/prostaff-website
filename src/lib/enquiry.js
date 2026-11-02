@@ -8,8 +8,8 @@ export const REQUIRED = ['firstName', 'lastName', 'email', 'profile', 'message']
 export const LIMITS = { name: 50, email: 254, phone: 20, messageMin: 10, message: 2000 };
 export const HONEYPOT = 'company_website';
 
-// Apps Script saves the row and sends the email before it replies; a cold start can take several seconds
-const REQUEST_TIMEOUT = 20000;
+// FormSubmit sends the email before it replies, which can take well over 10 seconds
+const REQUEST_TIMEOUT = 90000;
 
 /** Returns the error message for one field, or undefined when the value is acceptable. */
 export function validateField(name, rawValue) {
@@ -63,22 +63,30 @@ export function buildEnquiry(values) {
   };
 }
 
-/**
- * Sends the enquiry to the Google Apps Script web app (google-apps-script/Code.gs), which adds a row
- * to the Google Sheet and emails it to the inbox as a table. Resolves only once the script confirms.
- */
+/** Sends the enquiry to FormSubmit, which emails the inbox as a two-column table. */
 export async function sendEnquiry(values, form = contact.form) {
-  if (!form.sheetsEndpoint) throw new Error('Google Apps Script URL is not set (contact.form.sheetsEndpoint)');
-  const res = await fetch(form.sheetsEndpoint, {
+  const enquiry = buildEnquiry(values);
+  const res = await fetch(form.endpoint, {
     method: 'POST',
     signal: AbortSignal.timeout(REQUEST_TIMEOUT),
-    // text/plain keeps this a simple CORS request; Apps Script cannot answer preflight requests
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ ...buildEnquiry(values), [HONEYPOT]: '' }),
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      'Full Name': enquiry.name,
+      'Email Address': enquiry.email,
+      'Phone Number': enquiry.phone,
+      'Enquiry Type': enquiry.profile,
+      Message: enquiry.message,
+      'Submitted On': enquiry.submittedAt,
+      _subject: `New website enquiry (${enquiry.profile}) — ${enquiry.name}`,
+      _replyto: enquiry.email,
+      _template: 'table',
+      _captcha: 'false',
+    }),
   });
+  // FormSubmit answers 200 with { success: "false" } when the inbox is not yet activated.
   const data = await res.json().catch(() => null);
-  if (!res.ok || data?.ok !== true) {
-    throw new Error(`Google Apps Script: ${data?.error || `request failed (${res.status})`}`);
+  if (!res.ok || !data || String(data.success) === 'false') {
+    throw new Error(data?.message || `Request failed: ${res.status}`);
   }
 }
 

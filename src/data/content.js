@@ -37,9 +37,6 @@ export const brand = {
   monogram: 'PS',
 };
 
-// Paste the Apps Script web app URL here (it is public by design), e.g. 'https://script.google.com/macros/s/XXXX/exec'
-const GOOGLE_SCRIPT_URL = '';
-
 const BASE = (import.meta.env?.BASE_URL || '/').replace(/\/+$/, '') + '/';
 export const asset = (path) => `${BASE}${path.replace(/^\/+/, '')}`;
 
@@ -548,9 +545,8 @@ export const contact = {
       phoneInvalid: 'Please enter a valid phone number with 10 to 15 digits.',
       messageShort: 'Please write at least 10 characters so we can help you.',
     },
-    // Google Apps Script web app URL ending in /exec (setup steps at the top of google-apps-script/Code.gs).
-    // It saves each enquiry to the Google Sheet and emails it to the inbox as a table.
-    sheetsEndpoint: import.meta.env.VITE_SHEETS_ENDPOINT || GOOGLE_SCRIPT_URL || null,
+    // FormSubmit emails each submission to the inbox as a table. Override with VITE_CONTACT_ENDPOINT.
+    endpoint: import.meta.env.VITE_CONTACT_ENDPOINT || `https://formsubmit.co/ajax/${company.enquiryInbox}`,
   },
 };
 

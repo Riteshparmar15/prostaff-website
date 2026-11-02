@@ -36,8 +36,11 @@ test('valid enquiry is sent once, confirmed and the form resets', async ({ page,
   await expect(form.getByRole('status')).toContainText(SUCCESS);
   expect(formMock.submissions).toHaveLength(1);
 
-  const body = JSON.parse(formMock.submissions[0].postData());
-  expect(body).toMatchObject({ name: 'QA Automation', email: 'qa.automation@example.com' });
+  expect(formMock.submissions[0].postDataJSON()).toMatchObject({
+    'Full Name': 'QA Automation',
+    _replyto: 'qa.automation@example.com',
+    _template: 'table',
+  });
   await expect(form.getByLabel(/First Name/)).toHaveValue('');
 });
 
@@ -57,11 +60,11 @@ test('network failure shows the failure message', async ({ page, formMock }) => 
   await expect(form.getByText(/check your internet connection/)).toBeVisible();
 });
 
-test('an Apps Script error reply is reported as a failure, not success', async ({
+test('an unactivated FormSubmit inbox is reported as a failure, not success', async ({
   page,
   formMock,
 }) => {
-  formMock.reply = { status: 200, json: { ok: false, error: 'save-failed' } };
+  formMock.reply = { status: 200, json: { success: 'false', message: 'This form needs Activation.' } };
   const form = await fillValidEnquiry(page);
   await form.getByRole('button', { name: 'Send Message' }).click();
   await expect(form.getByText(FAILURE)).toBeVisible();
@@ -89,29 +92,32 @@ test('a request that never answers times out and re-enables the form', async ({
   const form = await fillValidEnquiry(page);
   await form.getByRole('button', { name: 'Send Message' }).click();
   await expect(form.getByRole('button', { name: 'Sending…' })).toBeDisabled();
-  await expect(form.getByText(FAILURE)).toBeVisible({ timeout: 30_000 });
+  await expect(form.getByText(FAILURE)).toBeVisible({ timeout: 95_000 });
   await expect(form.getByText(/took too long/)).toBeVisible();
   await expect(form.getByRole('button', { name: 'Send Message' })).toBeEnabled();
   await expect(form.getByLabel(/First Name/)).toHaveValue('QA');
 });
 
-test('payload matches the Google Apps Script contract', async ({ page, formMock }) => {
+test('payload matches the FormSubmit table contract', async ({ page, formMock }) => {
   const form = await fillValidEnquiry(page);
   await form.getByRole('button', { name: 'Send Message' }).click();
   await expect(form.getByRole('status')).toBeVisible();
 
   const req = formMock.submissions[0];
   expect(req.method()).toBe('POST');
-  expect(req.url()).toMatch(/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/);
-  expect(req.headers()['content-type']).toBe('text/plain;charset=utf-8');
-  expect(JSON.parse(req.postData())).toEqual({
-    name: 'QA Automation',
-    email: 'qa.automation@example.com',
-    phone: 'Not provided',
-    profile: 'Other',
-    message: 'Automated test enquiry. Please ignore.',
-    submittedAt: expect.stringMatching(/ IST$/),
-    company_website: '',
+  expect(req.url()).toMatch(/^https:\/\/formsubmit\.co\/ajax\/[^/]+$/);
+  expect(req.headers().accept).toBe('application/json');
+  expect(req.postDataJSON()).toEqual({
+    'Full Name': 'QA Automation',
+    'Email Address': 'qa.automation@example.com',
+    'Phone Number': 'Not provided',
+    'Enquiry Type': 'Other',
+    Message: 'Automated test enquiry. Please ignore.',
+    'Submitted On': expect.stringMatching(/ IST$/),
+    _subject: 'New website enquiry (Other) — QA Automation',
+    _replyto: 'qa.automation@example.com',
+    _template: 'table',
+    _captcha: 'false',
   });
 });
 
@@ -124,7 +130,7 @@ test('the form can be used again after a failure and after a success', async ({
   await form.getByRole('button', { name: 'Send Message' }).click();
   await expect(form.getByText(FAILURE)).toBeVisible();
 
-  formMock.reply = { status: 200, json: { ok: true } };
+  formMock.reply = { status: 200, json: { success: 'true' } };
   await form.getByRole('button', { name: 'Send Message' }).click();
   await expect(form.getByRole('status')).toContainText(SUCCESS);
   await expect(form.getByText(FAILURE)).toHaveCount(0);

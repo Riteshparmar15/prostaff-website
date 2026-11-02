@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
@@ -56,14 +56,7 @@ describe('hero', () => {
 });
 
 describe('contact form', () => {
-  const SCRIPT = 'https://script.google.com/macros/s/test/exec';
   const form = () => screen.getByRole('form', { name: 'Contact form' });
-  beforeEach(() => {
-    contact.form.sheetsEndpoint = SCRIPT;
-  });
-  afterEach(() => {
-    contact.form.sheetsEndpoint = null;
-  });
 
   const fillValid = async (user) => {
     const f = within(form());
@@ -84,31 +77,33 @@ describe('contact form', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('posts valid enquiries once to the Google Apps Script', async () => {
+  it('posts valid enquiries once to FormSubmit as a table', async () => {
     const user = userEvent.setup();
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
+      .mockResolvedValue(new Response('{"success":"true"}', { status: 200 }));
     render(<App />);
     await fillValid(user);
     await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
     expect(await within(form()).findByRole('status')).toHaveTextContent(contact.form.success);
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     const [url, init] = fetchSpy.mock.calls[0];
-    expect(url).toBe(SCRIPT);
-    expect(init.method).toBe('POST');
-    expect(init.headers['Content-Type']).toBe('text/plain;charset=utf-8');
+    expect(url).toBe(contact.form.endpoint);
+    expect(url).toMatch(/^https:\/\/formsubmit\.co\/ajax\//);
+    expect(init.headers.Accept).toBe('application/json');
     expect(JSON.parse(init.body)).toMatchObject({
-      name: 'Asha Mehta',
-      email: 'asha@example.com',
-      phone: 'Not provided',
-      profile: contact.form.fields.profile.options[0],
-      message: 'We need boutique staff.',
-      company_website: '',
+      'Full Name': 'Asha Mehta',
+      'Email Address': 'asha@example.com',
+      'Phone Number': 'Not provided',
+      'Enquiry Type': contact.form.fields.profile.options[0],
+      Message: 'We need boutique staff.',
+      _replyto: 'asha@example.com',
+      _template: 'table',
+      _captcha: 'false',
     });
   });
 
-  it('treats a non-JSON reply (e.g. a Google sign-in page) as a failure', async () => {
+  it('treats a non-JSON reply as a failure', async () => {
     const user = userEvent.setup();
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html>Sign in</html>', { status: 200 }));
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -118,22 +113,10 @@ describe('contact form', () => {
     expect(await within(form()).findByRole('alert')).toHaveTextContent(contact.form.failures.server);
   });
 
-  it('shows a failure when the Google Apps Script URL is not set', async () => {
-    contact.form.sheetsEndpoint = null;
-    const user = userEvent.setup();
-    const fetchSpy = vi.spyOn(globalThis, 'fetch');
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    render(<App />);
-    await fillValid(user);
-    await user.click(within(form()).getByRole('button', { name: contact.form.submit }));
-    expect(await within(form()).findByRole('alert')).toHaveTextContent(contact.form.failureTitle);
-    expect(fetchSpy).not.toHaveBeenCalled();
-  });
-
-  it('shows the failure message when the script reports ok false', async () => {
+  it('shows the failure message when FormSubmit reports success false', async () => {
     const user = userEvent.setup();
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response('{"ok":false,"error":"save-failed"}', { status: 200 }),
+      new Response('{"success":"false","message":"This form needs Activation."}', { status: 200 }),
     );
     vi.spyOn(console, 'error').mockImplementation(() => {});
     render(<App />);
@@ -189,7 +172,7 @@ describe('contact form', () => {
 
   it('accepts a formatted Indian phone number', async () => {
     const user = userEvent.setup();
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"success":"true"}', { status: 200 }));
     render(<App />);
     await fillValid(user);
     await user.type(within(form()).getByLabelText(/Phone/), '+91 98765-43210');

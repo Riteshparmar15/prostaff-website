@@ -8,10 +8,6 @@
 [build.environment]
   NODE_VERSION = "22"
 
-# Contact form channels are configured in Netlify: Site configuration > Environment variables.
-#   VITE_SHEETS_ENDPOINT   optional Google Sheets web app URL (see google-apps-script/Code.gs)
-#   VITE_CONTACT_ENDPOINT  optional; the backup channel, defaults to FormSubmit for company.enquiryInbox
-# Netlify Forms (the primary channel) is switched on automatically on Netlify builds. The "enquiry" form is
-# declared in index.html. After Netlify accepts an enquiry the browser also sends it to the inbox as a
-# FormSubmit table email, so keep Netlify's own (plain text) email notification off to avoid duplicates.
+# The contact form emails FormSubmit directly (company.enquiryInbox). Optional override:
+#   VITE_CONTACT_ENDPOINT
 # Netlify serves dist/404.html for unknown URLs automatically.

@@ -44,13 +44,12 @@ node scripts/live-audit.mjs  # read-only audit of the live site: redirects, head
 | `public/privacy.html`, `public/terms.html` | Standalone legal pages |
 | `netlify.toml` | Netlify build settings |
 | `public/_headers`, `vercel.json` | Caching and security headers for Netlify / Cloudflare Pages / Vercel |
-| `google-apps-script/Code.gs` | Optional Google Sheets + email backup for enquiries |
+| `google-apps-script/Code.gs` | Unused. The live form emails through FormSubmit only |
 | `BRAND.md` | Logo files, colours, clear space and type |
 
 ## Before launch
 
-- Contact form emails: on Netlify the form posts to [Netlify Forms](https://docs.netlify.com/manage/forms/setup/) first (instant; it is declared in `index.html`, and the email notification is set under Netlify → Forms → Form submission notifications). If that fails it falls back to EmailJS (set the three `VITE_EMAILJS_*` keys, see `.env.example`, and paste `emails/enquiry-template.html` into your [EmailJS](https://www.emailjs.com) template) or, without those keys, to [FormSubmit](https://formsubmit.co), which emails `company.enquiryInbox` (activate once from the first email it sends). Local builds always use the fallback, because Netlify Forms only exists on Netlify.
-- Google Sheets copy of every enquiry (optional, runs alongside the email): follow the setup steps at the top of `google-apps-script/Code.gs`, then set `VITE_SHEETS_ENDPOINT` in `.env` and rebuild. The form confirms success when at least one channel saves the enquiry.
+- Contact form emails go through [FormSubmit](https://formsubmit.co) to `company.enquiryInbox`, as a table (one row per field). Activate the inbox once from the first email FormSubmit sends. Override the address with `VITE_CONTACT_ENDPOINT` (see `.env.example`).
 - Fill in the remaining `company` fields (CIN, GSTIN, street address, founding year) in `src/data/content.js`. Anything left `null` stays hidden.
 - See `REVIEW.md` for the full list.
 - `.backup/luxehire-version.zip` holds the previous LuxeHire build of this project.

@@ -10,7 +10,7 @@ export const test = base.extend({
   formMock: [async ({ page, skipIntro }, use) => {
     const state = {
       submissions: [],
-      reply: { status: 200, json: { ok: true } },
+      reply: { status: 200, json: { success: 'true' } },
       delayMs: 0,
     };
     if (skipIntro) {
@@ -22,7 +22,7 @@ export const test = base.extend({
       'Access-Control-Allow-Headers': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
     };
-    await page.route(/script\.google(usercontent)?\.com/, async (route) => {
+    await page.route(/formsubmit\.co/, async (route) => {
       if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
       state.submissions.push(route.request());
       if (state.delayMs) await new Promise((r) => setTimeout(r, state.delayMs));

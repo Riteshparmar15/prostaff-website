@@ -105,25 +105,22 @@ describe('sendEnquiry payload integrity', () => {
     message: 'Need <b>staff</b> & "quotes" � ?????? ??? ? 100% + a=b&c=d',
   };
   afterEach(() => vi.restoreAllMocks());
-  const form = { ...contact.form, sheetsEndpoint: 'https://script.google.com/macros/s/test/exec' };
 
-  it('keeps Unicode, HTML characters and URL syntax intact in the Apps Script request', async () => {
-    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
-    await sendEnquiry(values, form);
+  it('keeps Unicode, HTML characters and URL syntax intact in the FormSubmit table', async () => {
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{"success":"true"}', { status: 200 }));
+    await sendEnquiry(values);
     const body = JSON.parse(spy.mock.calls[0][1].body);
-    expect(body.message).toBe(values.message.trim());
-    expect(body.name).toBe(`${values.firstName} ${values.lastName}`);
-    expect(Object.keys(body).sort()).toEqual(
-      ['company_website', 'email', 'message', 'name', 'phone', 'profile', 'submittedAt'].sort(),
-    );
-    expect(body.submittedAt).toMatch(/ IST$/);
+    expect(body.Message).toBe(values.message.trim());
+    expect(body['Full Name']).toBe(`${values.firstName} ${values.lastName}`);
+    expect(body._template).toBe('table');
+    expect(body['Submitted On']).toMatch(/ IST$/);
   });
 
   it.each([
-    ['ok false', () => new Response('{"ok":false,"error":"rate-limited"}', { status: 200 }), /rate-limited/],
+    ['success false', () => new Response('{"success":"false"}', { status: 200 }), /Request failed/],
     ['HTTP 500', () => new Response('{}', { status: 500 }), /500/],
-  ])('rejects when the script answers %s', async (_, reply, message) => {
+  ])('rejects when FormSubmit answers %s', async (_, reply, message) => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply());
-    await expect(sendEnquiry(values, form)).rejects.toThrow(message);
+    await expect(sendEnquiry(values)).rejects.toThrow(message);
   });
 });

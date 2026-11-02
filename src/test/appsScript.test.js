@@ -70,29 +70,7 @@ describe('Google Apps Script enquiry endpoint', () => {
       '1 Nov 2026, 10:00 am IST',
     ]);
     expect(s.mails).toHaveLength(1);
-    expect(s.mails[0]).toMatchObject({
-      to: 'adarsh.dubeyenterprises@gmail.com',
-      replyTo: 'asha@example.com',
-      subject: 'New website enquiry (Employer / Brand) — Asha Mehta',
-    });
-  });
-
-  it('emails every form field as a row of a two-column table', () => {
-    s.post(valid);
-    const html = s.mails[0].htmlBody;
-    expect(html).toContain('>Field</th>');
-    expect(html).toContain('>Details</th>');
-    [
-      ['Full Name', 'Asha Mehta'],
-      ['Email Address', 'asha@example.com'],
-      ['Phone Number', '+91 98765 43210'],
-      ['Enquiry Type', 'Employer / Brand'],
-      ['Message', 'We need boutique staff.'],
-      ['Submitted On', '1 Nov 2026, 10:00 am IST'],
-    ].forEach(([label, value]) => {
-      expect(html).toMatch(new RegExp(`>${label}</td><td[^>]*>(<[^>]+>)*${value.replace(/[+/]/g, '\\$&')}`));
-    });
-    expect(s.mails[0].body).toContain('Full Name: Asha Mehta');
+    expect(s.mails[0]).toMatchObject({ to: 'owner@example.com', replyTo: 'asha@example.com' });
   });
 
   it('silently ignores honeypot submissions', () => {

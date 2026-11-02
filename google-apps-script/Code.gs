@@ -17,7 +17,7 @@
  * The URL stays the same.
  */
 
-const NOTIFY_EMAIL = 'adarsh.dubeyenterprises@gmail.com'; // '' = the script owner's Gmail
+const NOTIFY_EMAIL = ''; // '' = the script owner's Gmail
 const SEND_EMAIL = true;
 const SHEET_NAME = 'Enquiries';
 const PROFILES = ['Employer / Brand', 'Job Seeker / Candidate', 'Partnership Enquiry', 'Other'];
@@ -99,52 +99,21 @@ function getSheet() {
 }
 
 function notify(enquiry) {
-  const cell = 'padding:12px 16px;border:1px solid #E6DAC6;font-size:14px;line-height:1.5;vertical-align:top;';
   const rows = [
-    ['Full Name', escapeHtml(enquiry.name)],
-    ['Email Address', '<a href="mailto:' + escapeHtml(enquiry.email) + '" style="color:#9C7A4B;">' + escapeHtml(enquiry.email) + '</a>'],
-    ['Phone Number', escapeHtml(enquiry.phone)],
-    ['Enquiry Type', escapeHtml(enquiry.profile)],
-    ['Message', '<span style="white-space:pre-wrap;">' + escapeHtml(enquiry.message) + '</span>'],
-    ['Submitted On', escapeHtml(enquiry.submittedAt)],
+    ['Name', enquiry.name],
+    ['Email', enquiry.email],
+    ['Phone', enquiry.phone],
+    ['Enquiry Type', enquiry.profile],
+    ['Message', enquiry.message],
+    ['Submitted On', enquiry.submittedAt],
   ]
-    .map(([label, value], i) =>
-      '<tr style="background:' + (i % 2 ? '#FFFFFF' : '#FBF8F3') + ';">' +
-      '<td style="' + cell + 'width:150px;font-weight:bold;color:#6F6A62;">' + label + '</td>' +
-      '<td style="' + cell + 'color:#1B1B1F;">' + value + '</td></tr>')
+    .map(([k, v]) => '<tr><th align="left" style="padding:6px 12px">' + k + '</th><td style="padding:6px 12px;white-space:pre-wrap">' + escapeHtml(v) + '</td></tr>')
     .join('');
-
-  const html =
-    '<div style="margin:0;padding:24px 12px;background:#F4EFE6;font-family:Arial,Helvetica,sans-serif;">' +
-    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;margin:0 auto;background:#FFFFFF;border:1px solid #E6DAC6;border-collapse:collapse;">' +
-    '<tr><td style="background:#0F1115;padding:24px 28px;">' +
-    '<div style="font-family:Georgia,serif;font-size:24px;letter-spacing:2px;color:#C9A96E;">PROSTAFF</div>' +
-    '<div style="margin-top:4px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#E6DAC6;">New Website Enquiry</div>' +
-    '</td></tr>' +
-    '<tr><td style="padding:24px 28px 8px;font-size:14px;color:#1B1B1F;">' +
-    'A new enquiry was submitted on <a href="https://prostaffconsulting.com" style="color:#9C7A4B;">prostaffconsulting.com</a>. Details below:' +
-    '</td></tr>' +
-    '<tr><td style="padding:12px 28px 24px;">' +
-    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">' +
-    '<tr><th align="left" style="' + cell + 'background:#C9A96E;color:#0F1115;">Field</th>' +
-    '<th align="left" style="' + cell + 'background:#C9A96E;color:#0F1115;">Details</th></tr>' +
-    rows +
-    '</table></td></tr>' +
-    '<tr><td style="padding:16px 28px;background:#FBF8F3;border-top:1px solid #E6DAC6;font-size:12px;color:#6F6A62;">' +
-    'Reply to this email to respond to ' + escapeHtml(enquiry.name) + '. A copy is saved in the "' + SHEET_NAME + '" Google Sheet.<br>' +
-    'Prostaff · A Division of Dubey Enterprises' +
-    '</td></tr></table></div>';
-
   MailApp.sendEmail({
     to: NOTIFY_EMAIL || Session.getEffectiveUser().getEmail(),
     replyTo: enquiry.email,
-    name: 'Prostaff Website',
     subject: 'New website enquiry (' + enquiry.profile + ') — ' + enquiry.name,
-    htmlBody: html,
-    body:
-      'New website enquiry\n\nFull Name: ' + enquiry.name + '\nEmail Address: ' + enquiry.email +
-      '\nPhone Number: ' + enquiry.phone + '\nEnquiry Type: ' + enquiry.profile +
-      '\nMessage: ' + enquiry.message + '\nSubmitted On: ' + enquiry.submittedAt,
+    htmlBody: '<p>New enquiry from the Prostaff website (saved to Google Sheets):</p><table>' + rows + '</table>',
   });
 }
 
