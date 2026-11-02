@@ -67,14 +67,14 @@ function ContactForm() {
   const [failure, setFailure] = useState('');
   // The disabled button only applies after a re-render, so a fast double-click could send twice
   const sendingRef = useRef(false);
-  const successTimer = useRef(null);
+  const successTimerRef = useRef(null);
 
   const succeed = () => {
     setStatus('success');
     setValues(INITIAL);
     setErrors({});
-    clearTimeout(successTimer.current);
-    successTimer.current = setTimeout(() => setStatus('idle'), SUCCESS_TIMEOUT);
+    clearTimeout(successTimerRef.current);
+    successTimerRef.current = setTimeout(() => setStatus('idle'), SUCCESS_TIMEOUT);
   };
 
   const inputProps = (name) => ({
